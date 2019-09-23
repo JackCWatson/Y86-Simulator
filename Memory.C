@@ -77,13 +77,13 @@ uint8_t Memory::getByte(int32_t address, bool & imem_error)
 {
    if (address > MEMSIZE || address < 0)
    {
-        imem_error = false;
-        return Tools::getByte(address, 7);
+        imem_error = true;
+        return 0;
    }
    else
    {
-        imem_error = true;
-        return 0;
+        imem_error = false;
+        return Tools::getByte(address, 7);
    }
 }
 
