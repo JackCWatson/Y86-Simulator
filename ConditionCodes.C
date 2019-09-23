@@ -48,13 +48,15 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
 {
    //Use your getBits in Tools.C.
    //Don't use "magic" numbers.
-   if (Tools::getBits(codes, ccNum, ccNum) != OF || Tools::getBits(codes, ccNum, ccNum) != SF || Tools::getBits(codes, ccNum, ccNum) || ZF)
+   int condition = 0;
+   if (ccNum == OF || ccNum == SF || ccNum == ZF)
    {
-       return false;
+       error = false;
+       condition = Tools::getBits(codes, ccNum, ccNum); //codes is always zeor i think becuase of constructor so condition is always zero
    }
-   else
-       return true; 
- 
+   else 
+       error = true;
+       return condition;
 }
 
 /*
@@ -74,23 +76,20 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
 {
    //Use your setBits and clearBits in Tools.C. 
    //Don't use "magic" numbers in your code.
-    if (Tools::getBits(codes, ccNum, ccNum) != OF || Tools::getBits(codes, ccNum, ccNum) != SF || Tools::getBits(codes, ccNum. ccNum) || (ZF && value == true))
+    if ((ccNum == OF || ccNum == SF || ccNum ==ZF) && (value == true))
     {
-       Tools:: setBits(codes, ccNum, ccNum);
+        codes = Tools::setBits(codes, ccNum, ccNum);
         error = false;
     }
-    else if (Tools::getBits(codes, ccNum, ccNum) != OF || Tools::getBits(codes, ccNum, ccNum) != SF || Tools::getBits(codes, ccNum || (ZF && value == true))
+    else if ((ccNum == OF || ccNum == SF || ccNum == ZF) && (value == false))
     {
-        Tools::clearBits(codes, ccNum, ccNum);
+        codes = Tools::clearBits(codes, ccNum, ccNum);
         error = false;
     }
-    else 
+    else
     {
         error = true;
     }
-
-
-
 }
 
 /*
