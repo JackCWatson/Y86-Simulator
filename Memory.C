@@ -13,7 +13,7 @@ Memory * Memory::memInstance = NULL;
  */
 Memory::Memory()
 {
-    for (int i = 0; i < MEMSIZE; i++)
+    for(int i = 0; i < MEMSIZE; i++)
     {
         mem[i] = 0;
     }
@@ -75,7 +75,16 @@ uint64_t Memory::getLong(int32_t address, bool & imem_error)
  */
 uint8_t Memory::getByte(int32_t address, bool & imem_error)
 {
-   return 0;
+   if (address > MEMSIZE || address < 0)
+   {
+        imem_error = false;
+        return Tools::getByte(address, 7);
+   }
+   else
+   {
+        imem_error = true;
+        return 0;
+   }
 }
 
 /**
@@ -115,7 +124,15 @@ void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
 
 void Memory::putByte(uint8_t value, int32_t address, bool & imem_error)
 {
-   return;
+   if (address > MEMSIZE || address < 0)
+   {
+        imem_error = true;
+   }
+   else
+   {
+        imem_error = false;
+        mem[address] = value;
+   }
 }
 
 /**
