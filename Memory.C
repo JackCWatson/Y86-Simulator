@@ -57,7 +57,7 @@ uint64_t Memory::getLong(int32_t address, bool & imem_error)
    else
    {
        imem_error = false;
-       return mem[address];
+       return mem[address / 8];
 
    }
    
@@ -83,7 +83,8 @@ uint8_t Memory::getByte(int32_t address, bool & imem_error)
    else
    {
         imem_error = false;
-        return Tools::getByte(address, 7);
+        return mem[address / 8];
+        
    }
 }
 
@@ -107,7 +108,7 @@ void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
    else
    {
        imem_error = false;
-       mem[address] = value;
+       mem[address / 8] = value;
    }
 }
 
