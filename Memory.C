@@ -2,7 +2,7 @@
 #include <iomanip>
 #include "Memory.h"
 #include "Tools.h"
-
+//Jake Wooten Jack Watson
 //memInstance will be initialized to the single instance
 //of the Memory class
 Memory * Memory::memInstance = NULL;
