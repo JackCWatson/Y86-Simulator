@@ -1,6 +1,6 @@
 /**
- * Names:
- * Team:
+ * Names: Jack Watson & Jake Wooten
+ * Team:2
 */
 #include <iostream>
 #include <fstream>
@@ -36,6 +36,10 @@ Loader::Loader(int argc, char * argv[])
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
 
+   if (Loader::fileOpen(2, 1) == false)
+   {
+       return;
+   }
    //The file handle is declared in Loader.h.  You should use that and
    //not declare another one in this file.
    
@@ -57,6 +61,34 @@ Loader::Loader(int argc, char * argv[])
    loaded = true;  
   
 }
+
+bool Loader::fileOpen(int argc, char * argv[])
+{
+    // Reduce Return Statements
+    String file = argv[1];
+    int size = strlen(argv[1]);
+    if (file.compare(size - 3, size, ".yo") == 0)
+    {
+        inf.open(argv[1], std::ifsteam::in);
+        if (inf.isOpen())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+
+
+}
+
+
+
 
 /**
  * isLoaded
