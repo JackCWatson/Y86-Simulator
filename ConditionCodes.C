@@ -2,7 +2,7 @@
 #include <iomanip>
 #include "ConditionCodes.h"
 #include "Tools.h"
-
+//Jake Wooten Jack Waston
 //cc_instance will be initialized to reference the single 
 //instance of ConditionCodes
 ConditionCodes * ConditionCodes::ccInstance = NULL;
