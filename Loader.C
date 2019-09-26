@@ -35,12 +35,13 @@ Loader::Loader(int argc, char * argv[])
    //Start by writing a method that opens the file (checks whether it ends 
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
-
-   if (fileOpen(argc, argv) == false)
+    
+   if (fileOpen(argc, argv) == false) 
    {
        return;
    }
-   //The file handle is declared in Loader.h.  You should use that and
+
+   //the file handle is declared in Loader.h.  You should use that and
    //not declare another one in this file.
    
    //Next write a simple loop that reads the file line by line and prints it out
@@ -66,9 +67,17 @@ bool Loader::fileOpen(int argc, char * argv[])
 {
     // Reduce Return Statements
    
+    if (argv[1] == NULL)
+    {
+        return false;
+    }
     std::string file = argv[1];
     int size = strlen(argv[1]);
-    if (file.compare(size - 3, 3, ".yo") == 0)
+    if (size < 4)
+    {
+        return false;
+    }
+    if (file.compare(size - 3, size, ".yo") == 0)
     {
         inf.open(argv[1], std::ifstream::in);
         if (inf.is_open())
