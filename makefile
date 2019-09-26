@@ -6,30 +6,23 @@ RegisterFileTester.o ConditionCodes.o ConditionCodesTester.o
 .C.o:
 	$(CC) $(CFLAGS) $< -o $@
 
-lab5: $(OBJ)
+lab6: $(OBJ)
 
-lab5.o: Memory.h RegisterFile.h MemoryTester.h RegisterFileTester.h ConditionCodes.h ConditionCodesTester.h
-
-MemoryTester.o: Memory.h MemoryTester.h
+lab6.o: Memory.h RegisterFile.h ConditionCodes.h loader.h
 
 Memory.o: Memory.h Tools.h
 
 RegisterFile.o: RegisterFile.h Tools.h
 
-RegisterFileTester.o: RegisterFile.h RegisterFileTester.h
-
 ConditionCodes.o: ConditionCodes.h Tools.h
 
-ConditionCodesTester.o: ConditionCodes.h ConditionCodesTester.h
-
-
-
+Loader.o: Loader.h Memory.h
 
 clean:
-	rm $(OBJ) lab5
+	rm $(OBJ) lab6
 
 run:
 	make clean
-	make lab5
+	make lab6
 	./run.sh
 
