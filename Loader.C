@@ -36,7 +36,7 @@ Loader::Loader(int argc, char * argv[])
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
 
-   if (Loader::fileOpen(2, 1) == false)
+   if (fileOpen(argc, argv) == false)
    {
        return;
    }
@@ -65,12 +65,13 @@ Loader::Loader(int argc, char * argv[])
 bool Loader::fileOpen(int argc, char * argv[])
 {
     // Reduce Return Statements
-    String file = argv[1];
+   
+    std::string file = argv[1];
     int size = strlen(argv[1]);
-    if (file.compare(size - 3, size, ".yo") == 0)
+    if (file.compare(size - 3, 3, ".yo") == 0)
     {
-        inf.open(argv[1], std::ifsteam::in);
-        if (inf.isOpen())
+        inf.open(argv[1], std::ifstream::in);
+        if (inf.is_open())
         {
             return true;
         }

@@ -6,6 +6,6 @@ class Loader
       std::ifstream inf;  //input file handle
    public:
       Loader(int argc, char * argv[]);
-      openFile(int argc, char * argv[]);
+      bool fileOpen(int argc, char * argv[]);
       bool isLoaded();
 };
