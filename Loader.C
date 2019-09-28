@@ -10,6 +10,8 @@
 #include "Loader.h"
 #include "Memory.h"
 
+using namespace std;
+
 //first column in file is assumed to be 0
 #define ADDRBEGIN 2   //starting column of 3 digit hex address 
 #define ADDREND 4     //ending column of 3 digit hext address
@@ -30,16 +32,27 @@
  */
 Loader::Loader(int argc, char * argv[])
 {
-   loaded = false;
+   
 
    //Start by writing a method that opens the file (checks whether it ends 
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
-    
+   string holder; 
    if (fileOpen(argc, argv) == false) 
    {
+       loaded = false;
        return;
    }
+   else
+   {
+        while (std::getline(inf, holder))
+        {
+            cout << holder << endl;
+        }
+        loaded = true;
+   }
+
+
 
    //the file handle is declared in Loader.h.  You should use that and
    //not declare another one in this file.
@@ -59,7 +72,6 @@ Loader::Loader(int argc, char * argv[])
 
    //If control reaches here then no error was found and the program
    //was loaded into memory.
-   loaded = true;  
   
 }
 
