@@ -45,6 +45,7 @@ Loader::Loader(int argc, char * argv[])
    }
    else
    {
+       // Call to loadline method here
         while (std::getline(inf, holder))
         {
             cout << holder << endl;
@@ -52,7 +53,8 @@ Loader::Loader(int argc, char * argv[])
         loaded = true;
    }
 
-
+   
+   
 
    //the file handle is declared in Loader.h.  You should use that and
    //not declare another one in this file.
@@ -109,7 +111,24 @@ bool Loader::fileOpen(int argc, char * argv[])
 
 }
 
+void Loader::loadline(string lineRead)
+{
+    
+}
 
+int Loader::convert(string line, int addB, int addE)
+{
+    // Want to convert string to a hec here
+    string toHex;
+    // for loop will iterate through to build the string
+    // then convert to hex
+    for (int i = addB, i < addE, i++)
+    {
+       toHex += line.c_str()[i];
+    }
+    // return the conversion;
+    return stoul(toHex, NULL, 16);
+}
 
 
 /**
