@@ -122,12 +122,31 @@ int Loader::convert(string line, int addB, int addE)
     string toHex;
     // for loop will iterate through to build the string
     // then convert to hex
-    for (int i = addB, i < addE, i++)
+    for (int i = addB; i < addE; i++)
     {
        toHex += line.c_str()[i];
     }
     // return the conversion;
     return stoul(toHex, NULL, 16);
+}   
+
+
+bool hasData(string line)
+{
+    if (line.c_str()[DATABEGIN] !- ' ' )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool hasAddress(string line)
+{
+    if (line.c_str()[0] == 0)
+    {
+        return true;
+    }
+    return false;
 }
 
 

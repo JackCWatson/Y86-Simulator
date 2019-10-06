@@ -1,4 +1,3 @@
-
 class Loader
 {
    private:
@@ -8,4 +7,8 @@ class Loader
       Loader(int argc, char * argv[]);
       bool fileOpen(int argc, char * argv[]);
       bool isLoaded();
+
+      //Make these work
+      void loadline(std::string lineRead);
+      int convert(std::string line, int a, int b);
 };
