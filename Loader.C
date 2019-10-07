@@ -7,6 +7,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sstream>
+
 #include "Loader.h"
 #include "Memory.h"
 
@@ -48,7 +50,11 @@ Loader::Loader(int argc, char * argv[])
        // Call to loadline method here
         while (std::getline(inf, holder))
         {
-            cout << holder << endl;
+           //cout << holder << endl;
+           if (hasData(holder) == true &&  hasAddress(holder) == true)
+           {
+               loadline(holder);
+           }
         }
         loaded = true;
    }
@@ -113,40 +119,66 @@ bool Loader::fileOpen(int argc, char * argv[])
 
 void Loader::loadline(string lineRead)
 {
+   uint8_t byteOneVal;
+   uint8_t byteTwoVal;
+   bool error = false;
+   int byteOne = DATABEGIN;
+   int byteTwo = DATABEGIN + 1;
+   uint32_t address = convert(lineRead, ADDRBEGIN, ADDREND);
+   Memory * mem = Memory::getInstance();
+
+   while(lineRead.c_str()[byteOne] != ' ' && lineRead.c_str()[byteTwo] != ' ')
+   {
+       byteOneVal = convert(lineRead, byteOne, byteOne);
+       byteTwoVal = convert(lineRead, byteTwo, byteTwo);
+       byteOne += 2;
+       byteTwo += 2;
+       mem->putByte(byteOneVal, address, error);
+       mem->putByte(byteTwoVal, address, error);
+   }
     
 }
 
-int Loader::convert(string line, int addB, int addE)
+
+
+
+int32_t Loader::convert(string line, int begin, int end)
 {
     // Want to convert string to a hec here
-    string toHex;
+    string toDec = "";
     // for loop will iterate through to build the string
     // then convert to hex
-    for (int i = addB; i < addE; i++)
+    for (int i = begin; i <= end; i++)
     {
-       toHex += line.c_str()[i];
+     toDec += line.c_str()[i];
     }
     // return the conversion;
-    return stoul(toHex, NULL, 16);
+    return strtol(line.c_str(), NULL, 16);
 }   
 
 
-bool hasData(string line)
+bool Loader::hasData(string line)
 {
-    if (line.c_str()[DATABEGIN] !- ' ' )
+    if (line.c_str()[DATABEGIN] != ' ' )
     {
         return true;
     }
-    return false;
+    else
+    {
+        return false;
+    }
 }
 
-bool hasAddress(string line)
+bool Loader::hasAddress(string line)
 {
-    if (line.c_str()[0] == 0)
+    if (line.c_str()[0] == '0')
     {
         return true;
     }
-    return false;
+    else
+    {
+        return false;
+    }
 }
 
 

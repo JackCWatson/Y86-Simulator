@@ -8,7 +8,9 @@ class Loader
       bool fileOpen(int argc, char * argv[]);
       bool isLoaded();
 
-      //Make these work
+
+      bool hasData(std::string lineRead);
+      bool hasAddress(std::string lineRead);
       void loadline(std::string lineRead);
-      int convert(std::string line, int a, int b);
+      int32_t convert(std::string line, int a, int b);
 };
