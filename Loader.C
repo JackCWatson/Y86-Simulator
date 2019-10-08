@@ -120,22 +120,16 @@ bool Loader::fileOpen(int argc, char * argv[])
 void Loader::loadline(string lineRead)
 {
    uint8_t byteOneVal;
-   //uint8_t byteTwoVal;
    bool error = false;
    int byteOne = DATABEGIN;
-   //int byteTwo = DATABEGIN + 1;
    uint16_t address = convert(lineRead, ADDRBEGIN, ADDREND);
    Memory * mem = Memory::getInstance();
 
    while(lineRead.c_str()[byteOne] != ' ' && lineRead.c_str()[byteOne + 1] != ' ')
    {
        byteOneVal = convert(lineRead, byteOne, byteOne + 1);
-       //byteTwoVal = convert(lineRead, byteTwo, byteTwo);
-       std::cout << byteOneVal;
        byteOne += 2;
-       //byteTwo += 2;
        mem->putByte(byteOneVal, address, error);
-       //mem->putByte(byteTwoVal, address, error);
        address += 1;
    }
     
@@ -146,17 +140,8 @@ void Loader::loadline(string lineRead)
 
 int32_t Loader::convert(string line, int begin, int end)
 {
-    // Want to convert string to a hec here
-    string toDec = "";
-    // for loop will iterate through to build the string
-    // then convert to hex
-    for (int i = begin; i <= end; i++)
-    {
-     toDec += line.c_str()[i];
-    }
-    // return the conversion
-    std::cout << line << std::endl << strtol(toDec.c_str(), NULL, 16) << endl;
-    return strtol(toDec.c_str(), NULL, 16);
+    std::string str = line.substr(begin, (end - begin) + 1);
+    return stoul(str, NULL, 16);
 }   
 
 
@@ -183,6 +168,129 @@ bool Loader::hasAddress(string line)
         return false;
     }
 }
+
+bool Loader::hasErrors(string input)
+{
+        bool retVal = false;
+        retVal = isComment(input);
+        retVal = isDigit(input);
+        retVal = multBytes(input);
+        retVal = wrongCharacters(input);
+        retVal = lastMem(input);
+        retVal = outsideArray(input);
+        retVal = hasData(input);
+        retVal = hasAddress(input);
+        return retVal;
+}
+
+bool Loader::isComment(string input)
+{
+        if(input[COMMENT] != '|')
+        {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+}
+
+bool Loader::isDigit(string input)
+{
+        bool holder = false;
+        for (int i = ADDRBEGIN; i <= ADDREND; i++)
+        {
+          if(!isxdigit(input[i]))
+          {
+            holder = true;
+          }
+          else
+          {
+             holder = false;
+          }
+        }
+       return holder;
+}
+
+bool Loader::multBytes(string input)
+{
+        return false;
+}
+
+bool Loader::wrongCharacters(string input)
+{
+    int32_t bytecount;
+    int bitVal = 0;
+    if(input[0] != '0' || input[1] != 'x')
+    {
+        return true;
+    }
+    else if (input[6] != ' ')
+    {
+        return true;
+    }
+    else if (input[5] != ':')
+    {
+        return true;
+    }
+    else 
+    {
+        for (int i = DATABEGIN; i < 22; i++)
+        {
+            if (input[i] == ' ')
+            {
+                return true;
+            }
+
+            if (!isxdigit(input[i]))
+            {
+                return true
+            }
+
+            bitVal++
+        }
+
+        //Improper byte
+        if (bitVal % 2 != 0)
+        {
+           return true;
+        }
+
+        byteCount = bitVal / 2;
+        if (byteCount > 0 && input[6] != ' ')
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Loader::lastMem(string input)
+{
+    return false;
+}
+
+bool Loader::outsideArray(string input)
+{
+    return false;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /**

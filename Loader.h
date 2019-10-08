@@ -13,4 +13,15 @@ class Loader
       bool hasAddress(std::string lineRead);
       void loadline(std::string lineRead);
       int32_t convert(std::string line, int a, int b);
+      bool hasErrors(std::string input);
+
+      bool isComment(std::string input);
+      bool isDigit(std::string input);
+      bool multBytes(std::string input);
+      bool wrongCharacters(std::string input);
+      bool lastMem(std::string input);
+      bool outsideArray(std::string input);
+
+
+
 };
