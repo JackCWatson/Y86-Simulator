@@ -48,14 +48,15 @@ Loader::Loader(int argc, char * argv[])
    else
    {
        // Call to loadline method here
+        int counter = 0;
         while (std::getline(inf, holder))
         {
-           //cout << holder << endl;
+           counter += 1;
            if (hasData(holder) == true &&  hasAddress(holder) == true)
            {
                if (hasErrors(holder))
                {
-                   std::cout << "Error on line " << std::dec << __FILE__ << __LINE__
+                   std::cout << "Error on line " << std::dec << counter
                              << ": " << holder << std::endl;
                    return;
                }
