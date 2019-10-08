@@ -53,7 +53,16 @@ Loader::Loader(int argc, char * argv[])
            //cout << holder << endl;
            if (hasData(holder) == true &&  hasAddress(holder) == true)
            {
-               loadline(holder);
+               if (hasErrors(holder))
+               {
+                   std::cout << "Error on line " << std::dec << __FILE__ << __LINE__
+                             << ": " << holder << std::endl;
+                   return;
+               }
+               else
+               {
+                   loadline(holder);
+               }
            }
         }
         loaded = true;
@@ -173,18 +182,22 @@ bool Loader::hasErrors(string input)
 {
         bool retVal = false;
         retVal = isComment(input);
-        retVal = isDigit(input);
-        retVal = multBytes(input);
-        retVal = wrongCharacters(input);
-        retVal = lastMem(input);
-        retVal = outsideArray(input);
-        retVal = hasData(input);
-        retVal = hasAddress(input);
+      //  retVal = isDigit(input);
+      //  retVal = multBytes(input);
+      //  retVal = wrongCharacters(input);
+      //  retVal = lastMem(input);
+      //  retVal = outsideArray(input);
+      //  retVal = hasData(input);
+      //  retVal = hasAddress(input);
         return retVal;
 }
 
 bool Loader::isComment(string input)
 {
+        if(input[5] != ':')
+        {
+            return true;
+        }
         if(input[COMMENT] != '|')
         {
           return true;
@@ -219,7 +232,7 @@ bool Loader::multBytes(string input)
 
 bool Loader::wrongCharacters(string input)
 {
-    int32_t bytecount;
+    int32_t byteCount;
     int bitVal = 0;
     if(input[0] != '0' || input[1] != 'x')
     {
@@ -244,10 +257,10 @@ bool Loader::wrongCharacters(string input)
 
             if (!isxdigit(input[i]))
             {
-                return true
+                return true;
             }
 
-            bitVal++
+            bitVal++;
         }
 
         //Improper byte
