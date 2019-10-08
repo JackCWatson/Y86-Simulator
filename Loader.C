@@ -120,21 +120,23 @@ bool Loader::fileOpen(int argc, char * argv[])
 void Loader::loadline(string lineRead)
 {
    uint8_t byteOneVal;
-   uint8_t byteTwoVal;
+   //uint8_t byteTwoVal;
    bool error = false;
    int byteOne = DATABEGIN;
-   int byteTwo = DATABEGIN + 1;
-   uint32_t address = convert(lineRead, ADDRBEGIN, ADDREND);
+   //int byteTwo = DATABEGIN + 1;
+   uint16_t address = convert(lineRead, ADDRBEGIN, ADDREND);
    Memory * mem = Memory::getInstance();
 
-   while(lineRead.c_str()[byteOne] != ' ' && lineRead.c_str()[byteTwo] != ' ')
+   while(lineRead.c_str()[byteOne] != ' ' && lineRead.c_str()[byteOne + 1] != ' ')
    {
-       byteOneVal = convert(lineRead, byteOne, byteOne);
-       byteTwoVal = convert(lineRead, byteTwo, byteTwo);
+       byteOneVal = convert(lineRead, byteOne, byteOne + 1);
+       //byteTwoVal = convert(lineRead, byteTwo, byteTwo);
+       std::cout << byteOneVal;
        byteOne += 2;
-       byteTwo += 2;
+       //byteTwo += 2;
        mem->putByte(byteOneVal, address, error);
-       mem->putByte(byteTwoVal, address, error);
+       //mem->putByte(byteTwoVal, address, error);
+       address += 1;
    }
     
 }
@@ -152,8 +154,9 @@ int32_t Loader::convert(string line, int begin, int end)
     {
      toDec += line.c_str()[i];
     }
-    // return the conversion;
-    return strtol(line.c_str(), NULL, 16);
+    // return the conversion
+    std::cout << line << std::endl << strtol(toDec.c_str(), NULL, 16) << endl;
+    return strtol(toDec.c_str(), NULL, 16);
 }   
 
 
