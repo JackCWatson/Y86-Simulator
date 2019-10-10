@@ -48,14 +48,15 @@ Loader::Loader(int argc, char * argv[])
    else
    {
        // Call to loadline method here
+        int counter = 0;
         while (std::getline(inf, holder))
         {
-           //cout << holder << endl;
+           counter += 1;
            if (hasData(holder) == true &&  hasAddress(holder) == true)
            {
                if (hasErrors(holder))
                {
-                   std::cout << "Error on line " << std::dec << __FILE__ << __LINE__
+                   std::cout << "Error on line " << std::dec << counter
                              << ": " << holder << std::endl;
                    return;
                }
@@ -182,13 +183,45 @@ bool Loader::hasErrors(string input)
 {
         bool retVal = false;
         retVal = isComment(input);
-      //  retVal = isDigit(input);
-      //  retVal = multBytes(input);
-      //  retVal = wrongCharacters(input);
-      //  retVal = lastMem(input);
-      //  retVal = outsideArray(input);
-      //  retVal = hasData(input);
-      //  retVal = hasAddress(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        retVal = isDigit(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        //retVal = multBytes(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        retVal = wrongCharacters(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        //retVal = lastMem(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        retVal = outsideArray(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        //retVal = hasData(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
+        //retVal = hasAddress(input);
+        if (retVal == true)
+        {
+            return retVal;
+        }
         return retVal;
 }
 
@@ -232,8 +265,7 @@ bool Loader::multBytes(string input)
 
 bool Loader::wrongCharacters(string input)
 {
-    int32_t byteCount;
-    int bitVal = 0;
+    
     if(input[0] != '0' || input[1] != 'x')
     {
         return true;
@@ -242,10 +274,12 @@ bool Loader::wrongCharacters(string input)
     {
         return true;
     }
+    
     else if (input[5] != ':')
     {
         return true;
     }
+   /*
     else 
     {
         for (int i = DATABEGIN; i < 22; i++)
@@ -260,21 +294,10 @@ bool Loader::wrongCharacters(string input)
                 return true;
             }
 
-            bitVal++;
         }
-
-        //Improper byte
-        if (bitVal % 2 != 0)
-        {
-           return true;
-        }
-
-        byteCount = bitVal / 2;
-        if (byteCount > 0 && input[6] != ' ')
-        {
-            return true;
-        }
-    }
+      
+   }
+   */
     return false;
 }
 
