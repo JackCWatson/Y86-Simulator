@@ -67,6 +67,7 @@ Loader::Loader(int argc, char * argv[])
            }
         }
         loaded = true;
+        inf.close();
    }
 
    
@@ -169,7 +170,7 @@ bool Loader::hasData(string line)
 
 bool Loader::hasAddress(string line)
 {
-    if (line.c_str()[0] == '0')
+    if (line.c_str()[0] == '0' && line.c_str()[DATABEGIN] != ' ')
     {
         return true;
     }
@@ -181,137 +182,93 @@ bool Loader::hasAddress(string line)
 
 bool Loader::hasErrors(string input)
 {
-        bool retVal = false;
-        retVal = isComment(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        retVal = isDigit(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        //retVal = multBytes(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        retVal = wrongCharacters(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        //retVal = lastMem(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        retVal = outsideArray(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        //retVal = hasData(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        //retVal = hasAddress(input);
-        if (retVal == true)
-        {
-            return retVal;
-        }
-        return retVal;
+     //bool retVal = false;
+     
+     //complete lines
+     if(input[0] != ' ' && input[DATABEGIN] != ' ')
+     {
+        if (memAddress(input)) return true;
+        if (colon(input)) return true;
+        if (validChar(input)) return true;
+        if (byteTwo(input)) return true;
+     }
+     if (comment(input)) return true;
+     //lines without data
+     else if(input[0] != ' ' && input[DATABEGIN] == ' ')
+     {
+        if (align(input)) return true;
+        if (memAddress(input)) return true;
+     }
+     if (dataNoAdd(input)) return true;
+
+     return false;
+     
 }
 
-bool Loader::isComment(string input)
+bool Loader::align(string input)
 {
-        if(input[5] != ':')
+    if (input[DATABEGIN + 1] != ' ')
+    {
+        return true;
+    }
+    return false;
+}
+bool Loader::memAddress(string input)
+{
+    if (input[0] != '0' || input[1] != 'x')
+    {
+        return true;
+    }
+    return false;
+}
+bool Loader::colon(string input)
+{
+    if (input[5] != ':' || input[6] != ' ')
+    {
+        return true;
+    }
+    return false;
+}
+bool Loader::validChar(string input)
+{
+    for (int i = DATABEGIN; input[i] != ' '; i++)
+    {
+        if(input[i] < 0 || input[i] > 'f')
         {
             return true;
         }
-        if(input[COMMENT] != '|')
-        {
-          return true;
-        }
-        else
-        {
-          return false;
-        }
+    }
+    return false;
 }
-
-bool Loader::isDigit(string input)
+bool Loader::comment(string input)
 {
-        bool holder = false;
-        for (int i = ADDRBEGIN; i <= ADDREND; i++)
-        {
-          if(!isxdigit(input[i]))
-          {
-            holder = true;
-          }
-          else
-          {
-             holder = false;
-          }
-        }
-       return holder;
-}
-
-bool Loader::multBytes(string input)
-{
-        return false;
-}
-
-bool Loader::wrongCharacters(string input)
-{
-    
-    if(input[0] != '0' || input[1] != 'x')
+    if (input[28] != '|')
     {
         return true;
     }
-    else if (input[6] != ' ')
+    return false;
+}
+bool Loader::byteTwo(string input)
+{
+    int j = DATABEGIN;
+    while (input[j] != ' ')
+    {
+        j++;
+    }
+    if (!(j % 2))
     {
         return true;
     }
-    
-    else if (input[5] != ':')
+    return false;
+}
+bool Loader::dataNoAdd(string input)
+{
+    if (input[DATABEGIN]!= ' ' && input[0] == ' ')
     {
         return true;
     }
-   /*
-    else 
-    {
-        for (int i = DATABEGIN; i < 22; i++)
-        {
-            if (input[i] == ' ')
-            {
-                return true;
-            }
-
-            if (!isxdigit(input[i]))
-            {
-                return true;
-            }
-
-        }
-      
-   }
-   */
     return false;
 }
-
-bool Loader::lastMem(string input)
-{
-    return false;
-}
-
-bool Loader::outsideArray(string input)
-{
-    return false;
-}
-
-
 
 
 

@@ -15,12 +15,13 @@ class Loader
       int32_t convert(std::string line, int a, int b);
       bool hasErrors(std::string input);
 
-      bool isComment(std::string input);
-      bool isDigit(std::string input);
-      bool multBytes(std::string input);
-      bool wrongCharacters(std::string input);
-      bool lastMem(std::string input);
-      bool outsideArray(std::string input);
+      bool align(std::string input);
+      bool memAddress(std::string input);
+      bool colon(std::string input);
+      bool validChar(std::string input);
+      bool comment(std::string input);
+      bool byteTwo(std::string input);
+      bool dataNoAdd(std::string input);
 
 
 
