@@ -19,8 +19,6 @@ using namespace std;
 #define ADDREND 4     //ending column of 3 digit hext address
 #define DATABEGIN 7   //starting column of data bytes
 #define COMMENT 28    //location of the '|' character 
-
-int memAdd2 = 0;
 /**
  * Loader constructor
  * Opens the .yo file named in the command line arguments, reads the contents of the file
@@ -41,6 +39,10 @@ Loader::Loader(int argc, char * argv[])
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
    string holder; 
+   //int initialVal = -1;
+   lastAddr = -1;
+
+
    if (fileOpen(argc, argv) == false) 
    {
        loaded = false;
@@ -195,6 +197,8 @@ bool Loader::hasErrors(string input)
         if (validChar(input)) return true;
         if (byteTwo(input)) return true;
         if (boundsCheck(input)) return true;
+        // new one
+        if (greaterMem(input));
      }
      if (comment(input)) return true;
      //lines without data
@@ -202,8 +206,6 @@ bool Loader::hasErrors(string input)
      {
         if (align(input)) return true;
         if (memAddress(input)) return true;
-        // Check this again
-        //if (wrongAddress(input));
      }
      else
      {
@@ -299,10 +301,21 @@ bool Loader::boundsCheck(string input)
 
 bool Loader::greaterMem(string input)
 {
+    /*
     int memAdd1 = -1;
     if (input[DATABEGIN] != ' ' && memAdd1 >= memAdd2) return true;
     memAdd1 = memAdd2;
     return false;
+    */
+
+
+    int32_t currAddr = convert(input, ADDRBEGIN, ADDREND);
+    if (currAddr <= lastAddr) return true;
+    else
+    {
+        lastAddr = currAddr;
+        return false;
+    }
 }
 
 

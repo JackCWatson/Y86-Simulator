@@ -26,4 +26,5 @@ class Loader
       bool trickyErrors(std::string input);
       bool greaterMem(std::string input);
 
+      int32_t lastAddr;
 };
