@@ -20,6 +20,7 @@ using namespace std;
 #define DATABEGIN 7   //starting column of data bytes
 #define COMMENT 28    //location of the '|' character 
 
+int memAdd2 = 0;
 /**
  * Loader constructor
  * Opens the .yo file named in the command line arguments, reads the contents of the file
@@ -35,7 +36,7 @@ using namespace std;
 Loader::Loader(int argc, char * argv[])
 {
    
-
+   
    //Start by writing a method that opens the file (checks whether it ends 
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
@@ -296,6 +297,13 @@ bool Loader::boundsCheck(string input)
     
 }
 
+bool Loader::greaterMem(string input)
+{
+    int memAdd1 = -1;
+    if (input[DATABEGIN] != ' ' && memAdd1 >= memAdd2) return true;
+    memAdd1 = memAdd2;
+    return false;
+}
 
 
 

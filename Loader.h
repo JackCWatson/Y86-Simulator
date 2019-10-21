@@ -24,5 +24,6 @@ class Loader
       bool dataNoAdd(std::string input);
       bool boundsCheck(std::string input);
       bool trickyErrors(std::string input);
+      bool greaterMem(std::string input);
 
 };
