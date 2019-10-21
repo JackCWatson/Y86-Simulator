@@ -39,8 +39,6 @@ Loader::Loader(int argc, char * argv[])
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
    string holder; 
-   //int initialVal = -1;
-   lastAddr = -1;
 
 
    if (fileOpen(argc, argv) == false) 
@@ -143,9 +141,12 @@ void Loader::loadline(string lineRead)
        byteOneVal = convert(lineRead, byteOne, byteOne + 1);
        byteOne += 2;
        mem->putByte(byteOneVal, address, error);
+       //Attempt to store last used address
+       lastAddr = address;
        address += 1;
+       
    }
-    
+
 }
 
 
@@ -184,6 +185,11 @@ bool Loader::hasAddress(string line)
 
 bool Loader::hasErrors(string input)
 {
+     // When restructuring code, think: 
+     // Multiple cases: data with lines, data without lines, partial lines, etc
+     // This should help with removal of trickyErrors
+     // need to redue alignment case, missing comment bar, and bites cases Then will work
+
      //pre checks
      if (validChar(input)) return true;
      if(comment(input)) return true;
@@ -191,14 +197,15 @@ bool Loader::hasErrors(string input)
      //complete lines
      if(input[0] != ' ' && input[DATABEGIN] != ' ')
      {
+
         if (input[DATABEGIN] != ' ' && input[DATABEGIN + 1] != ' ' && input[DATABEGIN + 2] == ' ' && input[DATABEGIN + 6] != ' ') return true;
         if (memAddress(input)) return true;
         if (colon(input)) return true;
         if (validChar(input)) return true;
         if (byteTwo(input)) return true;
         if (boundsCheck(input)) return true;
-        // new one
-        if (greaterMem(input));
+
+        if (greaterMem(input)) return true;
      }
      if (comment(input)) return true;
      //lines without data
@@ -296,41 +303,34 @@ bool Loader::boundsCheck(string input)
     count = count / 2;
     if (convert(input, ADDRBEGIN, ADDREND) + count > MEMSIZE) return true;
     return false;
-    
+
+
 }
 
 bool Loader::greaterMem(string input)
-{
+{   
     /*
-    int memAdd1 = -1;
-    if (input[DATABEGIN] != ' ' && memAdd1 >= memAdd2) return true;
-    memAdd1 = memAdd2;
-    return false;
-    */
-
-
-    int32_t currAddr = convert(input, ADDRBEGIN, ADDREND);
-    if (currAddr <= lastAddr) return true;
+    uint16_t currAddr = convert(input, ADDRBEGIN, ADDREND);
+    if (lastAddr >= currAddr) return true;
     else
     {
         lastAddr = currAddr;
         return false;
     }
+    */
+
+    if (convert(input, ADDRBEGIN, ADDREND) < lastAddr) return true;
+    int currAddr = 0;
+    for (int i = DATABEGIN; input[i] != '|'; i++)
+    {
+        if (input[i] == ' ') currAddr = 1;
+        if (currAddr == 1 && input[i] != ' ') return true;
+    }
+    return false;
+
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * isLoaded
