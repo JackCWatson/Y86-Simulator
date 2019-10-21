@@ -22,7 +22,7 @@ class Loader
       bool comment(std::string input);
       bool byteTwo(std::string input);
       bool dataNoAdd(std::string input);
-
-
+      bool boundsCheck(std::string input);
+      bool trickyErrors(std::string input);
 
 };

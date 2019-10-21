@@ -52,7 +52,7 @@ Loader::Loader(int argc, char * argv[])
         while (std::getline(inf, holder))
         {
            counter += 1;
-           if (hasData(holder) == true &&  hasAddress(holder) == true)
+           if (trickyErrors(holder))
            {
                if (hasErrors(holder))
                {
@@ -66,10 +66,9 @@ Loader::Loader(int argc, char * argv[])
                }
            }
         }
-        loaded = true;
         inf.close();
    }
-
+   loaded = true;
    
    
 
@@ -156,21 +155,21 @@ int32_t Loader::convert(string line, int begin, int end)
 }   
 
 
-bool Loader::hasData(string line)
+bool Loader::trickyErrors(string line)
 {
-    if (line.c_str()[DATABEGIN] != ' ' )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    if (align(line)) return true;
+    if (line[COMMENT] != '|') return true;
+    //Blank lines
+    if (line.c_str()[DATABEGIN] != ' ') return true;
+    //Improper formating
+    if (line[DATABEGIN] != ' ' && line[DATABEGIN + 1] != ' ') return true;
+    if (line[0] == '0' && line[1] != 'x') return true;
+    else return false;
 }
 
 bool Loader::hasAddress(string line)
 {
-    if (line.c_str()[0] == '0' && line.c_str()[DATABEGIN] != ' ')
+    if (line.c_str()[0] == '0')
     {
         return true;
     }
@@ -182,15 +181,19 @@ bool Loader::hasAddress(string line)
 
 bool Loader::hasErrors(string input)
 {
-     //bool retVal = false;
+     //pre checks
+     if (validChar(input)) return true;
+     if(comment(input)) return true;
      
      //complete lines
      if(input[0] != ' ' && input[DATABEGIN] != ' ')
      {
+        if (input[DATABEGIN] != ' ' && input[DATABEGIN + 1] != ' ' && input[DATABEGIN + 2] == ' ' && input[DATABEGIN + 6] != ' ') return true;
         if (memAddress(input)) return true;
         if (colon(input)) return true;
         if (validChar(input)) return true;
         if (byteTwo(input)) return true;
+        if (boundsCheck(input)) return true;
      }
      if (comment(input)) return true;
      //lines without data
@@ -198,8 +201,14 @@ bool Loader::hasErrors(string input)
      {
         if (align(input)) return true;
         if (memAddress(input)) return true;
+        // Check this again
+        //if (wrongAddress(input));
      }
-     if (dataNoAdd(input)) return true;
+     else
+     {
+        if (dataNoAdd(input)) return true;
+        if (memAddress(input)) return true;
+     }
 
      return false;
      
@@ -233,7 +242,7 @@ bool Loader::validChar(string input)
 {
     for (int i = DATABEGIN; input[i] != ' '; i++)
     {
-        if(input[i] < 0 || input[i] > 'f')
+        if(input[i] < '0' || input[i] > 'f')
         {
             return true;
         }
@@ -242,7 +251,7 @@ bool Loader::validChar(string input)
 }
 bool Loader::comment(string input)
 {
-    if (input[28] != '|')
+    if (input[COMMENT] != '|')
     {
         return true;
     }
@@ -251,11 +260,13 @@ bool Loader::comment(string input)
 bool Loader::byteTwo(string input)
 {
     int j = DATABEGIN;
+    int bitCount = 0;
     while (input[j] != ' ')
     {
+        bitCount++;
         j++;
     }
-    if (!(j % 2))
+    if (bitCount % 2 != 0)
     {
         return true;
     }
@@ -270,6 +281,20 @@ bool Loader::dataNoAdd(string input)
     return false;
 }
 
+bool Loader::boundsCheck(string input)
+{
+    int count = 0;
+    int i = DATABEGIN;
+    while (input[i] != ' ')
+    {
+        i++;
+        count++;
+    }
+    count = count / 2;
+    if (convert(input, ADDRBEGIN, ADDREND) + count > MEMSIZE) return true;
+    return false;
+    
+}
 
 
 
