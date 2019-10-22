@@ -10,7 +10,6 @@ class Loader
 
 
       bool hasData(std::string lineRead);
-      bool hasAddress(std::string lineRead);
       void loadline(std::string lineRead);
       int32_t convert(std::string line, int a, int b);
       bool hasErrors(std::string input);

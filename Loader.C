@@ -53,19 +53,19 @@ Loader::Loader(int argc, char * argv[])
         while (std::getline(inf, holder))
         {
            counter += 1;
-           if (trickyErrors(holder))
-           {
+           //if (trickyErrors(holder))
+           //{
                if (hasErrors(holder))
                {
                    std::cout << "Error on line " << std::dec << counter
                              << ": " << holder << std::endl;
                    return;
                }
-               else
-               {
-                   loadline(holder);
-               }
-           }
+              
+               
+               if(holder[0] == '0' && holder[DATABEGIN] != ' ') loadline(holder);
+               
+           //}
         }
         inf.close();
    }
@@ -162,26 +162,11 @@ int32_t Loader::convert(string line, int begin, int end)
 bool Loader::trickyErrors(string line)
 {
     if (align(line)) return true;
-    if (line[COMMENT] != '|') return true;
-    //Blank lines
-    if (line.c_str()[DATABEGIN] != ' ') return true;
-    //Improper formating
-    if (line[DATABEGIN] != ' ' && line[DATABEGIN + 1] != ' ') return true;
+    if (comment(line)) return true;
     if (line[0] == '0' && line[1] != 'x') return true;
     else return false;
 }
 
-bool Loader::hasAddress(string line)
-{
-    if (line.c_str()[0] == '0')
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
 
 bool Loader::hasErrors(string input)
 {
@@ -189,16 +174,15 @@ bool Loader::hasErrors(string input)
      // Multiple cases: data with lines, data without lines, partial lines, etc
      // This should help with removal of trickyErrors
      // need to redue alignment case, missing comment bar, and bites cases Then will work
+     
 
      //pre checks
      if (validChar(input)) return true;
-     if(comment(input)) return true;
-     
+     if (comment(input)) return true;
      //complete lines
      if(input[0] != ' ' && input[DATABEGIN] != ' ')
      {
 
-        if (input[DATABEGIN] != ' ' && input[DATABEGIN + 1] != ' ' && input[DATABEGIN + 2] == ' ' && input[DATABEGIN + 6] != ' ') return true;
         if (memAddress(input)) return true;
         if (colon(input)) return true;
         if (validChar(input)) return true;
@@ -207,17 +191,16 @@ bool Loader::hasErrors(string input)
 
         if (greaterMem(input)) return true;
      }
-     if (comment(input)) return true;
      //lines without data
      else if(input[0] != ' ' && input[DATABEGIN] == ' ')
      {
         if (align(input)) return true;
+        // catches an X
         if (memAddress(input)) return true;
      }
      else
      {
         if (dataNoAdd(input)) return true;
-        if (memAddress(input)) return true;
      }
 
      return false;
