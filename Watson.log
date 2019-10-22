@@ -7,3 +7,5 @@ Completed ConditionCodes
 10/1 - 10/15/2019
 Worked to implement loader
 Passed 6 Tests so far
+10/22
+16 Tests now work, removed trickyErrors
