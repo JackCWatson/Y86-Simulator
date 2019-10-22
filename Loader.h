@@ -10,7 +10,6 @@ class Loader
 
 
       bool hasData(std::string lineRead);
-      bool hasAddress(std::string lineRead);
       void loadline(std::string lineRead);
       int32_t convert(std::string line, int a, int b);
       bool hasErrors(std::string input);
@@ -22,7 +21,9 @@ class Loader
       bool comment(std::string input);
       bool byteTwo(std::string input);
       bool dataNoAdd(std::string input);
+      bool boundsCheck(std::string input);
+      bool trickyErrors(std::string input);
+      bool greaterMem(std::string input);
 
-
-
+      int32_t lastAddr;
 };

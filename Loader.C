@@ -19,7 +19,6 @@ using namespace std;
 #define ADDREND 4     //ending column of 3 digit hext address
 #define DATABEGIN 7   //starting column of data bytes
 #define COMMENT 28    //location of the '|' character 
-
 /**
  * Loader constructor
  * Opens the .yo file named in the command line arguments, reads the contents of the file
@@ -35,11 +34,13 @@ using namespace std;
 Loader::Loader(int argc, char * argv[])
 {
    
-
+   
    //Start by writing a method that opens the file (checks whether it ends 
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
    string holder; 
+
+
    if (fileOpen(argc, argv) == false) 
    {
        loaded = false;
@@ -52,24 +53,23 @@ Loader::Loader(int argc, char * argv[])
         while (std::getline(inf, holder))
         {
            counter += 1;
-           if (hasData(holder) == true &&  hasAddress(holder) == true)
-           {
+           //if (trickyErrors(holder))
+           //{
                if (hasErrors(holder))
                {
                    std::cout << "Error on line " << std::dec << counter
                              << ": " << holder << std::endl;
                    return;
                }
-               else
-               {
-                   loadline(holder);
-               }
-           }
+              
+               
+               if(holder[0] == '0' && holder[DATABEGIN] != ' ') loadline(holder);
+               
+           //}
         }
-        loaded = true;
         inf.close();
    }
-
+   loaded = true;
    
    
 
@@ -141,9 +141,12 @@ void Loader::loadline(string lineRead)
        byteOneVal = convert(lineRead, byteOne, byteOne + 1);
        byteOne += 2;
        mem->putByte(byteOneVal, address, error);
+       //Attempt to store last used address
+       lastAddr = address;
        address += 1;
+       
    }
-    
+
 }
 
 
@@ -156,50 +159,49 @@ int32_t Loader::convert(string line, int begin, int end)
 }   
 
 
-bool Loader::hasData(string line)
+bool Loader::trickyErrors(string line)
 {
-    if (line.c_str()[DATABEGIN] != ' ' )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    if (align(line)) return true;
+    if (comment(line)) return true;
+    if (line[0] == '0' && line[1] != 'x') return true;
+    else return false;
 }
 
-bool Loader::hasAddress(string line)
-{
-    if (line.c_str()[0] == '0' && line.c_str()[DATABEGIN] != ' ')
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
 
 bool Loader::hasErrors(string input)
 {
-     //bool retVal = false;
+     // When restructuring code, think: 
+     // Multiple cases: data with lines, data without lines, partial lines, etc
+     // This should help with removal of trickyErrors
+     // need to redue alignment case, missing comment bar, and bites cases Then will work
      
+
+     //pre checks
+     if (validChar(input)) return true;
+     if (comment(input)) return true;
      //complete lines
      if(input[0] != ' ' && input[DATABEGIN] != ' ')
      {
+
         if (memAddress(input)) return true;
         if (colon(input)) return true;
         if (validChar(input)) return true;
         if (byteTwo(input)) return true;
+        if (boundsCheck(input)) return true;
+
+        if (greaterMem(input)) return true;
      }
-     if (comment(input)) return true;
      //lines without data
      else if(input[0] != ' ' && input[DATABEGIN] == ' ')
      {
         if (align(input)) return true;
+        // catches an X
         if (memAddress(input)) return true;
      }
-     if (dataNoAdd(input)) return true;
+     else
+     {
+        if (dataNoAdd(input)) return true;
+     }
 
      return false;
      
@@ -233,7 +235,7 @@ bool Loader::validChar(string input)
 {
     for (int i = DATABEGIN; input[i] != ' '; i++)
     {
-        if(input[i] < 0 || input[i] > 'f')
+        if(input[i] < '0' || input[i] > 'f')
         {
             return true;
         }
@@ -242,7 +244,7 @@ bool Loader::validChar(string input)
 }
 bool Loader::comment(string input)
 {
-    if (input[28] != '|')
+    if (input[COMMENT] != '|')
     {
         return true;
     }
@@ -251,11 +253,13 @@ bool Loader::comment(string input)
 bool Loader::byteTwo(string input)
 {
     int j = DATABEGIN;
+    int bitCount = 0;
     while (input[j] != ' ')
     {
+        bitCount++;
         j++;
     }
-    if (!(j % 2))
+    if (bitCount % 2 != 0)
     {
         return true;
     }
@@ -270,21 +274,46 @@ bool Loader::dataNoAdd(string input)
     return false;
 }
 
+bool Loader::boundsCheck(string input)
+{
+    int count = 0;
+    int i = DATABEGIN;
+    while (input[i] != ' ')
+    {
+        i++;
+        count++;
+    }
+    count = count / 2;
+    if (convert(input, ADDRBEGIN, ADDREND) + count > MEMSIZE) return true;
+    return false;
+
+
+}
+
+bool Loader::greaterMem(string input)
+{   
+    /*
+    uint16_t currAddr = convert(input, ADDRBEGIN, ADDREND);
+    if (lastAddr >= currAddr) return true;
+    else
+    {
+        lastAddr = currAddr;
+        return false;
+    }
+    */
+
+    if (convert(input, ADDRBEGIN, ADDREND) < lastAddr) return true;
+    int currAddr = 0;
+    for (int i = DATABEGIN; input[i] != '|'; i++)
+    {
+        if (input[i] == ' ') currAddr = 1;
+        if (currAddr == 1 && input[i] != ' ') return true;
+    }
+    return false;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 /**
  * isLoaded
