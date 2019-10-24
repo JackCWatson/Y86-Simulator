@@ -4,6 +4,7 @@
 #include "PipeRegField.h"
 #include "PipeReg.h"
 #include "F.h"
+#include "E.h"
 #include "D.h"
 #include "M.h"
 #include "W.h"
@@ -11,6 +12,7 @@
 #include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Instructions.h"
 
 
 /*
@@ -24,23 +26,13 @@
  */
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-   E * ereg = (E *) pregs[EREG];
    M * mreg = (M *) pregs[MREG];
-   uint64_t e_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   uint64_t Cnd = 0, icode = INOP, valE = 0, valA = 0, dstE = 0, dstM = 0;
+   uint64_t stat = SAOK;
 
-   //code missing here to select the value of the PC
-   //and fetch the instruction from memory
-   //Fetching the instruction will allow the icode, ifun,
-   //rA, rB, and valC to be set.
-   //The lab assignment describes what methods need to be
-   //written.
-
-   //The value passed to setInput below will need to be changed
-   ereg->getpredPC()->setInput(e_pc + 1);
 
    //provide the input values for the D register
-   setMInput(mreg, stat, icode, ifun, rA, rB, valC, valP);
+   setMInput(mreg, stat, icode, Cnd, valE, valA, dstE, dstM);
    return false;
 }
 
@@ -52,17 +44,15 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
-   E * ereg = (E *) pregs[FREG];
-   M * mreg = (M *) pregs[DREG];
+   M * mreg = (M *) pregs[MREG];
 
-   ereg->getpredPC()->normal();
    mreg->getstat()->normal();
    mreg->geticode()->normal();
-   mreg->getifun()->normal();
-   mreg->getrA()->normal();
-   mreg->getrB()->normal();
-   mreg->getvalC()->normal();
-   mreg->getvalP()->normal();
+   mreg->getCnd()->normal();
+   mreg->getvalE()->normal();
+   mreg->getvalA()->normal();
+   mreg->getdstE()->normal();
+   mreg->getdstM()->normal();
 }
 
 /* setDInput
@@ -79,14 +69,14 @@ void ExecuteStage::doClockHigh(PipeReg ** pregs)
  * @param: valP - value to be stored in the valP pipeline register within D
 */
 void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, 
-                           uint64_t ifun, uint64_t rA, uint64_t rB,
-                           uint64_t valC, uint64_t valP)
+                           uint64_t Cnd, uint64_t valE, uint64_t valA,
+                           uint64_t dstE, uint64_t dstM)
 {
    mreg->getstat()->setInput(stat);
    mreg->geticode()->setInput(icode);
-   mreg->getifun()->setInput(ifun);
-   mreg->getrA()->setInput(rA);
-   mreg->getrB()->setInput(rB);
-   mreg->getvalC()->setInput(valC);
-   mreg->getvalP()->setInput(valP);
+   mreg->getvalE()->setInput(valE);
+   mreg->getCnd()->setInput(Cnd);
+   mreg->getvalA()->setInput(valA);
+   mreg->getdstE()->setInput(dstE);
+   mreg->getdstM()->setInput(dstM);
 }
