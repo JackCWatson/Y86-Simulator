@@ -26,9 +26,11 @@
  */
 bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
+   D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
-   uint64_t icode = FNONE, ifun = RNONE, valC = 0, valA = 0, valB = 0, srcA = 0, srcB = 0;
-   uint64_t dstE = RNONE, dstM = RNONE, stat = SAOK;
+   uint64_t icode = dreg->getstat()->getOutput(), ifun = dreg->getifun()->getOutput(), 
+       valC = dreg->getvalC()->getOutput(), valA = 0, valB = 0, srcA = 0, srcB = 0;
+   uint64_t dstE = RNONE, dstM = RNONE, stat = dreg->getstat()->getOutput();
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
@@ -53,7 +55,6 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
-   D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
 
    ereg->getstat()->normal();
@@ -90,9 +91,9 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getifun()->setInput(ifun);
    ereg->getsrcA()->setInput(srcA);
    ereg->getsrcB()->setInput(srcB);
-   ereg->getdstE()->setInput(0);
-   ereg->getdstM()->setInput(0);
-   ereg->getvalC()->setInput(0);
-   ereg->getvalA()->setInput(0);
-   ereg->getvalB()->setInput(0);
+   ereg->getdstE()->setInput(dstE);
+   ereg->getdstM()->setInput(dstM);
+   ereg->getvalC()->setInput(valC);
+   ereg->getvalA()->setInput(valA);
+   ereg->getvalB()->setInput(valB);
 }

@@ -11,6 +11,7 @@
 #include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Instructions.h"
 
 
 /*
@@ -26,8 +27,9 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
-   uint64_t valE = 0, valM = 0;
-   uint64_t dstE = RNONE, dstM = RNONE, icode = INOP, stat = SAOK;
+   uint64_t valE = mreg->getvalE()->getOutput(), valM = 0;
+   uint64_t dstE = mreg->getdstE()->getOutput(), dstM = mreg->getdstM()->getOutput(), 
+       icode = mreg->geticode()->getOutput(), stat = mreg->getstat()->getOutput();
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
@@ -51,7 +53,6 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void MemoryStage::doClockHigh(PipeReg ** pregs)
 {
-   M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
 
    wreg->getstat()->normal();
@@ -75,14 +76,14 @@ void MemoryStage::doClockHigh(PipeReg ** pregs)
  * @param: valC - value to be stored in the valC pipeline register within D
  * @param: valP - value to be stored in the valP pipeline register within D
 */
-void Memory::setDInput(W * wreg, uint64_t stat, uint64_t icode, 
+void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, 
                            uint64_t valE, uint64_t valM, uint64_t dstE,
                            uint64_t dstM)
 {
    wreg->getstat()->setInput(stat);
    wreg->geticode()->setInput(icode);
-   wreg->getvalE()->setInput(ifun);
-   wreg->getvalM()->setInput(rA);
-   wreg->getdstE()->setInput(rB);
-   wreg->getdstM()->setInput(valC);
+   wreg->getvalE()->setInput(valE);
+   wreg->getvalM()->setInput(valM);
+   wreg->getdstE()->setInput(dstE);
+   wreg->getdstM()->setInput(dstM);
 }
