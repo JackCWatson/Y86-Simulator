@@ -24,8 +24,8 @@
  */
 bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-   M * mreg = (M *) pregs[FREG];
-   W * wreg = (W *) pregs[DREG];
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
    uint64_t m_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
