@@ -11,6 +11,8 @@
 #include "FetchStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Instructions.h"
+#include "Tools.h"
 
 
 /*
@@ -90,4 +92,26 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
    dreg->getvalC()->setInput(valC);
    dreg->getvalP()->setInput(valP);
 }
-     
+ 
+uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
+{
+    uint64_t M_icode = mreg->geticode()->getOutput(), M_Cnd = mreg->getCnd()->getOutput(),
+        W_icode = wreg->geticode()->getOutput();
+
+        if (M_icode == IJXX && !M_Cnd) return mreg->getvalA()->getOutput();
+        if (W_icode == IRET) return wreg->getvalM()->getOutput();
+        return freg->getpredPC()->getOutput();
+
+}
+
+bool FetchStage::needRegIds(uint64_t f_icode)
+{
+    return (f_icode == IRRMOVQ || f_icode == IOPQ || f_icode == IPUSHQ ||
+        f_icode == IPOPQ || f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ);
+}
+
+bool FetchStage::needValC(uint64_t f_icode)
+{
+    return (f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ ||
+        f_icode == IJXX || f_icode == ICALL);
+}
