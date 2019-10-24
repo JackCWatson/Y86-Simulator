@@ -27,8 +27,16 @@
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    M * mreg = (M *) pregs[MREG];
-   uint64_t Cnd = 0, icode = INOP, valE = 0, valA = 0, dstE = 0, dstM = 0;
-   uint64_t stat = SAOK;
+   E * ereg = (E *) pregs[EREG];
+   
+   uint64_t Cnd = 0, valE = 0;
+
+   uint64_t stat = ereg->getstat()->getOutput();
+   uint64_t icode = ereg->geticode()->getOutput();
+   //uint64_t ifun = ereg->getifun()->getOutput();
+   uint64_t valA = ereg->getvalA()->getOutput();
+   uint64_t dstM = ereg->getdstM()->getOutput();
+   uint64_t dstE = ereg->getdstM()->getOutput();
 
 
    //provide the input values for the D register
