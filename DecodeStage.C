@@ -41,7 +41,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    dreg->getpredPC()->setInput(d_pc + 1);
 
    //provide the input values for the D register
-   setEInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+   setEInput(ereg, stat, icode, ifun, rA, rB, valC, valP);
    return false;
 }
 
@@ -53,8 +53,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
-   F * freg = (F *) pregs[FREG];
-   D * dreg = (D *) pregs[DREG];
+   D * freg = (D *) pregs[DREG];
+   E * dreg = (E *) pregs[EREG];
 
    dreg->getpredPC()->normal();
    ereg->getstat()->normal();
