@@ -4,11 +4,12 @@
 #include "PipeRegField.h"
 #include "PipeReg.h"
 #include "F.h"
+#include "E.h"
 #include "D.h"
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
-#include "FetchStage.h"
+#include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
 
@@ -78,7 +79,7 @@ void DecodeStage::doClockHigh(PipeReg ** pregs)
  * @param: valC - value to be stored in the valC pipeline register within D
  * @param: valP - value to be stored in the valP pipeline register within D
 */
-void DecodeStage::setDInput(E * ereg, uint64_t stat, uint64_t icode, 
+void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode, 
                            uint64_t ifun, uint64_t rA, uint64_t rB,
                            uint64_t valC, uint64_t valP)
 {
