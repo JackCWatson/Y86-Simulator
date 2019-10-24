@@ -27,8 +27,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
-   uint64_t d_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   uint64_t d_pc = 0, icode = 0, ifun = RNONE, valC = 0, valA = 0, valB = 0, srcA = 0, srcB = 0;
+   uint64_t dstE = RNONE, dstM = RNONE, stat = SAOK;
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
@@ -38,10 +38,10 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //written.
 
    //The value passed to setInput below will need to be changed
-   dreg->getpredPC()->setInput(d_pc + 1);
+  
 
    //provide the input values for the D register
-   setEInput(ereg, stat, icode, ifun, rA, rB, valC, valP);
+   setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, srcA, srcB);
    return false;
 }
 
@@ -53,17 +53,19 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
-   D * freg = (D *) pregs[DREG];
-   E * dreg = (E *) pregs[EREG];
+   D * dreg = (D *) pregs[DREG];
+   E * ereg = (E *) pregs[EREG];
 
-   dreg->getpredPC()->normal();
    ereg->getstat()->normal();
    ereg->geticode()->normal();
    ereg->getifun()->normal();
-   ereg->getrA()->normal();
-   ereg->getrB()->normal();
    ereg->getvalC()->normal();
-   ereg->getvalP()->normal();
+   ereg->getvalA()->normal();
+   ereg->getvalB()->normal();
+   ereg->getdstE()->normal();
+   ereg->getdstM()->normal();
+   ereg->getsrcA()->normal();
+   ereg->getsrcB()->normal();
 }
 
 /* setDInput
@@ -80,14 +82,17 @@ void DecodeStage::doClockHigh(PipeReg ** pregs)
  * @param: valP - value to be stored in the valP pipeline register within D
 */
 void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode, 
-                           uint64_t ifun, uint64_t rA, uint64_t rB,
-                           uint64_t valC, uint64_t valP)
+                           uint64_t ifun, uint64_t valC, uint64_t valA,
+                           uint64_t valB, uint64_t dstE, uint64_t dstM, uint64_t srcA, uint64_t srcB)
 {
    ereg->getstat()->setInput(stat);
    ereg->geticode()->setInput(icode);
    ereg->getifun()->setInput(ifun);
-   ereg->getrA()->setInput(rA);
-   ereg->getrB()->setInput(rB);
-   ereg->getvalC()->setInput(valC);
-   ereg->getvalP()->setInput(valP);
+   ereg->getsrcA()->setInput(srcA);
+   ereg->getsrcB()->setInput(srcB);
+   ereg->getdstE()->setInput(0);
+   ereg->getdstM()->setInput(0);
+   ereg->getvalC()->setInput(0);
+   ereg->getvalA()->setInput(0);
+   ereg->getvalB()->setInput(0);
 }
