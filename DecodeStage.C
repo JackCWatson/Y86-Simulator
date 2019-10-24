@@ -12,6 +12,7 @@
 #include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Instructions.h"
 
 
 /*
@@ -25,9 +26,8 @@
  */
 bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-   D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
-   uint64_t d_pc = 0, icode = 0, ifun = RNONE, valC = 0, valA = 0, valB = 0, srcA = 0, srcB = 0;
+   uint64_t icode = FNONE, ifun = RNONE, valC = 0, valA = 0, valB = 0, srcA = 0, srcB = 0;
    uint64_t dstE = RNONE, dstM = RNONE, stat = SAOK;
 
    //code missing here to select the value of the PC

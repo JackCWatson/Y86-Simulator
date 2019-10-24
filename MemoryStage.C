@@ -26,8 +26,8 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
-   uint64_t m_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   uint64_t valE = 0, valM = 0;
+   uint64_t dstE = RNONE, dstM = RNONE, icode = INOP, stat = SAOK;
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
@@ -37,10 +37,9 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //written.
 
    //The value passed to setInput below will need to be changed
-   mreg->getpredPC()->setInput(m_pc + 1);
 
    //provide the input values for the D register
-   setWInput(wreg, stat, icode, ifun, rA, rB, valC, valP);
+   setWInput(wreg, stat, icode, valE, valM, dstE, dstM);
    return false;
 }
 
@@ -52,17 +51,15 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void MemoryStage::doClockHigh(PipeReg ** pregs)
 {
-   M * mreg = (M *) pregs[FREG];
-   W * wreg = (W *) pregs[DREG];
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
 
-   mreg->getpredPC()->normal();
    wreg->getstat()->normal();
    wreg->geticode()->normal();
-   wreg->getifun()->normal();
-   wreg->getrA()->normal();
-   wreg->getrB()->normal();
-   wreg->getvalC()->normal();
-   wreg->getvalP()->normal();
+   wreg->getvalE()->normal();
+   wreg->getvalM()->normal();
+   wreg->getdstE()->normal();
+   wreg->getdstM()->normal();
 }
 
 /* setDInput
@@ -79,14 +76,13 @@ void MemoryStage::doClockHigh(PipeReg ** pregs)
  * @param: valP - value to be stored in the valP pipeline register within D
 */
 void Memory::setDInput(W * wreg, uint64_t stat, uint64_t icode, 
-                           uint64_t ifun, uint64_t rA, uint64_t rB,
-                           uint64_t valC, uint64_t valP)
+                           uint64_t valE, uint64_t valM, uint64_t dstE,
+                           uint64_t dstM)
 {
    wreg->getstat()->setInput(stat);
    wreg->geticode()->setInput(icode);
-   wreg->getifun()->setInput(ifun);
-   wreg->getrA()->setInput(rA);
-   wreg->getrB()->setInput(rB);
-   wreg->getvalC()->setInput(valC);
-   wreg->getvalP()->setInput(valP);
+   wreg->getvalE()->setInput(ifun);
+   wreg->getvalM()->setInput(rA);
+   wreg->getdstE()->setInput(rB);
+   wreg->getdstM()->setInput(valC);
 }
