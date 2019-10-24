@@ -11,7 +11,7 @@
 #include "WritebackStage.h"
 #include "Status.h"
 #include "Debug.h"
-
+#include "Instructions.h"
 
 /*
  * doClockLow:
@@ -24,7 +24,11 @@
  */
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-   return true;
+
+   W * wreg = (W *) pregs[WREG];
+   uint64_t icode = wreg->geticode()->getOutput();
+   if (icode == IHALT) return true;
+   return false;
 }
 
 /* doClockHigh
