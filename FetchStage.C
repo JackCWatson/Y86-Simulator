@@ -115,3 +115,14 @@ bool FetchStage::needValC(uint64_t f_icode)
     return (f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ ||
         f_icode == IJXX || f_icode == ICALL);
 }
+uint64_t FetchStage::PCIncrement(uint64_t fpc, bool nRegID, bool nValC)
+{
+    if (nRegID) fpc += 1;
+    if (nValC) fpc += 8;
+    fpc += 1;
+    return fpc;
+}
+
+
+
+
