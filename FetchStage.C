@@ -34,13 +34,13 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    bool error = false;
    uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
-   uint64_t f_pc = selectPC(freg, mreg, wreg)->getOutput();
+   uint64_t f_pc = selectPC(freg, mreg, wreg);
    //bits 4-7 icode and 0-3 are ifun
    uint64_t instByte = Memory::getInstance()->getByte(f_pc, error);
-   icode = Tools::getBits(instByte, 0, 3);
-   ifun = Tools::getBits(instByte, 4, 7);
+   icode = Tools::getBits(instByte, 4, 7);
+   ifun = Tools::getBits(instByte, 0, 3);
    valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
-       predictPC(icode, valC, valP);
+   uint64_t prediction = predictPC(icode, valC, valP);
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
    //Fetching the instruction will allow the icode, ifun,
@@ -49,7 +49,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //written.
    
    //The value passed to setInput below will need to be changed
-   freg->getpredPC()->setInput(f_pc + 1);
+   freg->getpredPC()->setInput(prediction);
 
    //provide the input values for the D register
    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
@@ -106,11 +106,11 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
 uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
 {
     uint64_t M_icode = mreg->geticode()->getOutput(), M_Cnd = mreg->getCnd()->getOutput(),
-        W_icode = wreg->geticode()->getOutput();
+    W_icode = wreg->geticode()->getOutput();
 
-        if (M_icode == IJXX && !M_Cnd) return mreg->getvalA()->getOutput();
-        if (W_icode == IRET) return wreg->getvalM()->getOutput();
-        return freg->getpredPC()->getOutput();
+    if (M_icode == IJXX && !M_Cnd) return mreg->getvalA()->getOutput();
+    if (W_icode == IRET) return wreg->getvalM()->getOutput();
+    return freg->getpredPC()->getOutput();
 
 }
 

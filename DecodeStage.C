@@ -28,8 +28,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
-   uint64_t icode = dreg->getstat()->getOutput(), ifun = dreg->getifun()->getOutput(), 
-       valC = dreg->getvalC()->getOutput(), valA = 0, valB = 0, srcA = 0, srcB = 0;
+   uint64_t icode = dreg->geticode()->getOutput(), ifun = dreg->getifun()->getOutput(), 
+   valC = dreg->getvalC()->getOutput(), valA = 0, valB = 0, srcA = RNONE, srcB = RNONE;
    uint64_t dstE = RNONE, dstM = RNONE, stat = dreg->getstat()->getOutput();
 
    //code missing here to select the value of the PC

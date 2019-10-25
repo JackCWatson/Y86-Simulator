@@ -39,7 +39,7 @@ Loader::Loader(int argc, char * argv[])
    //with a .yo and whether the file successfully opens; if not, return without 
    //loading)
    string holder; 
-
+   lastAddr = -1;
 
    if (fileOpen(argc, argv) == false) 
    {
@@ -53,8 +53,6 @@ Loader::Loader(int argc, char * argv[])
         while (std::getline(inf, holder))
         {
            counter += 1;
-           //if (trickyErrors(holder))
-           //{
                if (hasErrors(holder))
                {
                    std::cout << "Error on line " << std::dec << counter
@@ -65,7 +63,6 @@ Loader::Loader(int argc, char * argv[])
                
                if(holder[0] == '0' && holder[DATABEGIN] != ' ') loadline(holder);
                
-           //}
         }
         inf.close();
    }
