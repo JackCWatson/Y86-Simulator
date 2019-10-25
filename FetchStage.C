@@ -13,7 +13,7 @@
 #include "Debug.h"
 #include "Instructions.h"
 #include "Tools.h"
-
+#include "Memory.h"
 
 /*
  * doClockLow:
@@ -28,16 +28,26 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
-   uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
 
+   bool error = false;
+   uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
+   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   uint64_t f_pc = selectPC(freg, mreg, wreg)->getOutput();
+   //bits 4-7 icode and 0-3 are ifun
+   uint64_t instByte = Memory::getInstance()->getByte(f_pc, error);
+   icode = Tools::getBits(instByte, 0, 3);
+   ifun = Tools::getBits(instByte, 4, 7);
+   valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
+       predictPC(icode, valC, valP);
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
    //Fetching the instruction will allow the icode, ifun,
    //rA, rB, and valC to be set.
    //The lab assignment describes what methods need to be
    //written.
-
+   
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(f_pc + 1);
 
@@ -122,6 +132,17 @@ uint64_t FetchStage::PCIncrement(uint64_t fpc, bool nRegID, bool nValC)
     fpc += 1;
     return fpc;
 }
+
+uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
+{
+    if (f_icode == IJXX || f_icode == ICALL) return f_valC;
+    return f_valP;
+}
+
+
+
+
+
 
 
 
