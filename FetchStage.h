@@ -11,6 +11,8 @@ class FetchStage: public Stage
       bool needValC(uint64_t f_icode);
       uint64_t PCIncrement(uint64_t fpc, bool nRegID, bool nValC);
       uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
+      void getRegIds(uint64_t f_code, uint64_t * rA, uint64_t * rB);
+      uint64_t buildValC(uint64_t fpc, bool needRegIds);
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);

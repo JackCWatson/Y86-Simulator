@@ -48,6 +48,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //The lab assignment describes what methods need to be
    //written.
    
+   //New code that checks needsRegIDs and needsValC
+   if (needValC(icode)) valC = buildValC(f_pc, needRegIds(icode));
+   if (needRegIds(icode)) getRegIds(f_pc, &rA, &rB);
+   
+   
+   
+   
+      
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(prediction);
 
@@ -139,9 +147,33 @@ uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_val
     return f_valP;
 }
 
+void FetchStage::getRegIds(uint64_t fpc, uint64_t * rA, uint64_t * rB)
+{
+    bool errorInput;
+    Memory * mem = Memory::getInstance();
+    
+    uint64_t rVal = mem->getByte(fpc + 1, errorInput);
+    uint8_t valrA = Tools::getBits(rVal, 4, 7);
+    uint8_t valrB = Tools::getBits(rVal, 0, 3);
 
+    *rA = valrA;
+    *rB = valrB;
+}
 
+uint64_t FetchStage:: buildValC(uint64_t fpc, bool needRegIds)
+{
+    int offSetCalc = fpc + 1;
+    bool errorInput;
+    Memory * mem = Memory::getInstance();
+    uint8_t valC[8];
+    if (needRegIds) offSetCalc += 1;
+    for (int i = 0; i < 8; i++)
+    {
+        valC[i] = mem->getByte(offSetCalc + i, errorInput);
+    }
+    return Tools::buildLong(valC);
 
+}
 
 
 
