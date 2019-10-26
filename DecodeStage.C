@@ -29,8 +29,19 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    D * dreg = (D *) pregs[DREG];
    E * ereg = (E *) pregs[EREG];
    uint64_t icode = dreg->geticode()->getOutput(), ifun = dreg->getifun()->getOutput(), 
-   valC = dreg->getvalC()->getOutput(), valA = 0, valB = 0, srcA = RNONE, srcB = RNONE;
-   uint64_t dstE = RNONE, dstM = RNONE, stat = dreg->getstat()->getOutput();
+   valC = dreg->getvalC()->getOutput();
+   uint64_t stat = dreg->getstat()->getOutput();
+
+   RegisterFile * reg = RegisterFile::getInstance();
+   bool error;
+   uint64_t srcA = d_srcA(icode, dreg);
+   uint64_t srcB = d_srcB(icode, dreg);
+   uint64_t dstE = d_dstE(icode, dreg);
+   uint64_t dstM = d_dstM(icode, dreg);
+   uint64_t valA = reg->readRegister(d_valA(srcA), error);
+   uint64_t valB = reg->readRegister(d_valA(srcB), error);
+
+
 
    //code missing here to select the value of the PC
    //and fetch the instruction from memory
@@ -96,4 +107,41 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getvalC()->setInput(valC);
    ereg->getvalA()->setInput(valA);
    ereg->getvalB()->setInput(valB);
+}
+
+uint64_t DecodeStage::d_srcA(uint64_t icode, D * dreg)
+{
+    if (icode == IRRMOVQ || icode == IRMMOVQ || icode ==IOPQ || icode == IPUSHQ) return dreg->getrA()->getOutput();;
+    if (icode == IPOPQ || icode == IRET) return RSP;
+    return RNONE;
+}
+
+uint64_t DecodeStage::d_srcB(uint64_t icode, D * dreg)
+{
+    if (icode == IOPQ || icode == IRMMOVQ || icode == IMRMOVQ) return dreg->getrB()->getOutput();
+    if (icode == IPUSHQ || icode == IPOPQ || icode == ICALL || icode == IRET) return RSP;
+    return RNONE;
+}
+
+uint64_t DecodeStage::d_dstE(uint64_t icode, D * dreg)
+{
+    if (icode == IRRMOVQ || icode == IIRMOVQ || icode == IOPQ) return dreg->getrB()->getOutput();
+    if (icode == IPUSHQ || icode == IPOPQ || icode == ICALL || icode == IRET) return RSP;
+    else return RNONE;
+}
+
+uint64_t DecodeStage::d_dstM(uint64_t icode, D * dreg)
+{
+    if (icode == IMRMOVQ || icode == IPOPQ) return dreg->getrA()->getOutput();
+    return RNONE;
+}
+
+uint64_t DecodeStage::d_valA(uint64_t d_srcA)
+{   
+    return d_srcA;
+}
+
+uint64_t DecodeStage::d_valB(uint64_t d_srcB)
+{
+    return d_srcB;
 }
