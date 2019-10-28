@@ -29,7 +29,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    E * ereg = (E *) pregs[EREG];
    
-   uint64_t Cnd = 0, valE = 0;
+   uint64_t Cnd = 0;
 
    uint64_t stat = ereg->getstat()->getOutput();
    uint64_t icode = ereg->geticode()->getOutput();
@@ -37,10 +37,10 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t valA = ereg->getvalA()->getOutput();
    uint64_t dstM = ereg->getdstM()->getOutput();
    uint64_t dstE = ereg->getdstM()->getOutput();
-
-
+    
+   uint64_t e_valE = ereg->getvalC()->getOutput();
    //provide the input values for the D register
-   setMInput(mreg, stat, icode, Cnd, valE, valA, dstE, dstM);
+   setMInput(mreg, stat, icode, Cnd, e_valE, valA, dstE, dstM);
    return false;
 }
 
