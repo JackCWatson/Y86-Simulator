@@ -175,7 +175,3 @@ uint64_t FetchStage:: buildValC(uint64_t fpc, bool needRegIds)
 
 }
 
-
-
-
-
