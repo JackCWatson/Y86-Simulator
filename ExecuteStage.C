@@ -88,3 +88,42 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode,
    mreg->getdstE()->setInput(dstE);
    mreg->getdstM()->setInput(dstM);
 }
+
+uint64_t ExecuteStage::aluA(uint64_t icode, E * ereg)
+{
+    if (icode == IRRMOVQ || icode == IOPQ) return ereg->getvalA()->getOutput();
+    if (icode == IIRMOVQ || icode == IRMMOVQ || icode == IMRMOVQ) return ereg->getvalC()->getOutput();
+    if (icode == ICALL || icode == IPUSHQ) return -8;
+    if (icode == IRET || icode == IPOPQ) return 8;
+    return 0;
+}
+
+uint64_t ExecuteStage::aluB(uint64_t icode, E * ereg)
+{
+    if (icode == IRMMOVQ || icode == IMRMOVQ || icode == IOPQ || icode == ICALL || icode == IPUSHQ ||
+        icode == IRET || icode == IPOPQ) return ereg->getvalB()->getOutput();
+    if (icode == IRRMOVQ || icode == IIRMOVQ) return 0;
+    return 0;
+}
+
+uint64_t ExecuteStage::alufun(uint64_t icode, E * ereg)
+{
+    if (icode == IOPQ) return ereg->getifun()->getOutput();
+    return ADDQ;
+}
+
+//come back and check on this method
+bool ExecuteStage::set_cc(icode)
+{
+    if (icode == IOPQ) return true;
+    return false;
+}
+
+uint64_t ExecuteStage::e_dstE(uint64_t icode, E * ereg)
+{
+    //what id e_Cnd
+    if (icode == IRRMOVQ && !e_Cnd) return RNONE;
+    return ereg->getdstE()->getOutput();
+}
+
+
