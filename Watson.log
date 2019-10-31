@@ -15,3 +15,5 @@ Makefile now accuratei
 Completed execute, and writeback files
 10/25
 Completed PCincrement method
+10/31
+Passed two tests on execute stage
