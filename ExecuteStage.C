@@ -13,6 +13,8 @@
 #include "Status.h"
 #include "Debug.h"
 #include "Instructions.h"
+#include "ConditionCodes.h"
+#include "Tools.h"
 
 
 /*
@@ -31,6 +33,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    
    uint64_t Cnd = 0;
 
+
    uint64_t stat = ereg->getstat()->getOutput();
    uint64_t icode = ereg->geticode()->getOutput();
    //uint64_t ifun = ereg->getifun()->getOutput();
@@ -38,9 +41,19 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t dstM = ereg->getdstM()->getOutput();
    uint64_t dstE = ereg->getdstE()->getOutput();
     
-   uint64_t e_valE = ereg->getvalC()->getOutput();
+   uint64_t e_aluFun = alufun(icode, ereg);
+   uint64_t e_aluA = aluA(icode, ereg);
+   uint64_t e_aluB = aluB(icode, ereg);
+    
+   uint64_t valE = e_alu(e_aluFun, set_cc(icode), e_aluA, e_aluB);
+   //uint64_t e_cond = cond(icode, ifun);
+   //dstE = e_dstE(icode, e_cond, ereg);
+
+
+
+
    //provide the input values for the D register
-   setMInput(mreg, stat, icode, Cnd, e_valE, valA, dstE, dstM);
+   setMInput(mreg, stat, icode, Cnd, valE, valA, dstE, dstM);
    return false;
 }
 
@@ -113,13 +126,47 @@ uint64_t ExecuteStage::alufun(uint64_t icode, E * ereg)
 }
 
 //come back and check on this method
-bool ExecuteStage::set_cc(icode)
+bool ExecuteStage::set_cc(uint64_t icode)
 {
-    if (icode == IOPQ) return true;
-    return false;
+    return (icode == IOPQ);
 }
 
-uint64_t ExecuteStage::e_dstE(uint64_t icode, E * ereg)
+uint64_t ExecuteStage::e_alu(uint64_t alufun, bool setCC, uint64_t aluA, uint64_t aluB)
+{
+     bool checkOverflow = false;
+     bool error = false;
+     uint64_t result = 0;
+     //Switch Statement instead of a million ifs, to check ALU
+     switch(alufun)
+     {
+         case ADDQ:
+            checkOverflow = Tools::addOverflow(aluA, aluB);
+            result = aluA + aluB;
+            break;
+         case ANDQ:
+            result = aluA & aluB;
+            break;
+         case XORQ:
+            result = aluA ^ aluB;
+            break;
+            //check
+         case SUBQ:
+            result = aluB - aluA;
+            checkOverflow = Tools::subOverflow(aluB, aluA);
+            break;
+     }
+     if (setCC)
+     {
+         ConditionCodes * codes = ConditionCodes::getInstance();
+         codes->setConditionCode((result == 0), ZF, error);
+         codes->setConditionCode(Tools::sign(result), SF, error);
+         codes->setConditionCode(checkOverflow, OF, error);
+     }
+     return result;
+}
+
+
+uint64_t ExecuteStage::e_dstE(uint64_t icode, uint64_t e_Cnd, E * ereg)
 {
     //what id e_Cnd
     if (icode == IRRMOVQ && !e_Cnd) return RNONE;
