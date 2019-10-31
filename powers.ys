@@ -1,0 +1,7 @@
+0x000:                      |   .pos 0x0
+0x000: 10                   |   nop
+0x001: 30f00100000000000000 |   irmoveq 1, %rax
+0x00b: 10                   |   nop
+0x00c: 10                   |   nop
+0x00d: 10                   |   nop
+0x00e:                      |   add 1 to rax and put it in rcx
