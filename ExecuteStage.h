@@ -4,6 +4,7 @@ class ExecuteStage: public Stage
       void setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t Cnd, 
                      uint64_t valE, uint64_t valA,
                      uint64_t dstE, uint64_t dstM);
+      uint64_t valE, dstE;
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);
@@ -14,4 +15,7 @@ class ExecuteStage: public Stage
       uint64_t alufun(uint64_t icode, E * ereg);
       bool set_cc(uint64_t icode);
       uint64_t e_dstE(uint64_t icode, uint64_t e_Cnd, E * ereg);
+
+      uint64_t getValE();
+      uint64_t getdstE();
 };
