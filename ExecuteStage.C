@@ -31,12 +31,12 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    M * mreg = (M *) pregs[MREG];
    E * ereg = (E *) pregs[EREG];
    
-   uint64_t Cnd = 0;
+   //uint64_t Cnd = 0;
 
 
    uint64_t stat = ereg->getstat()->getOutput();
    uint64_t icode = ereg->geticode()->getOutput();
-   //uint64_t ifun = ereg->getifun()->getOutput();
+   uint64_t ifun = ereg->getifun()->getOutput();
    uint64_t valA = ereg->getvalA()->getOutput();
    uint64_t dstM = ereg->getdstM()->getOutput();
    dstE = ereg->getdstE()->getOutput();
@@ -46,14 +46,15 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t e_aluB = aluB(icode, ereg);
     
    valE = e_alu(e_aluFun, set_cc(icode), e_aluA, e_aluB);
-   //uint64_t e_cond = cond(icode, ifun);
-   //dstE = e_dstE(icode, e_cond, ereg);
+   //Just Added
+   uint64_t e_cond = cond(ifun, icode);
+   dstE = e_dstE(icode, e_cond, dstE);
 
 
 
 
    //provide the input values for the D register
-   setMInput(mreg, stat, icode, Cnd, valE, valA, dstE, dstM);
+   setMInput(mreg, stat, icode, e_cond, valE, valA, dstE, dstM);
    return false;
 }
 
@@ -166,11 +167,11 @@ uint64_t ExecuteStage::e_alu(uint64_t alufun, bool setCC, uint64_t aluA, uint64_
 }
 
 
-uint64_t ExecuteStage::e_dstE(uint64_t icode, uint64_t e_Cnd, E * ereg)
+uint64_t ExecuteStage::e_dstE(uint64_t icode, uint64_t e_Cnd, uint64_t e_dstE)
 {
     //what id e_Cnd
     if (icode == IRRMOVQ && !e_Cnd) return RNONE;
-    return ereg->getdstE()->getOutput();
+    return e_dstE; //ereg->getdstE()->getOutput();
 }
 
 uint64_t ExecuteStage::getdstE()
@@ -180,4 +181,25 @@ uint64_t ExecuteStage::getdstE()
 uint64_t ExecuteStage::getValE()
 {
     return valE;
+}
+// Add to header file, and change DOCLOCKLOW
+uint64_t ExecuteStage::cond(uint64_t ifun, uint64_t icode)
+{
+    bool error = false;
+    ConditionCodes * CC = ConditionCodes::getInstance();
+    uint64_t overFlow = CC->getConditionCode(OF, error);
+    uint64_t signFlag = CC->getConditionCode(SF, error);
+    uint64_t zeroFlag = CC->getConditionCode(ZF, error);
+    //Could do a switch here
+    if (icode == ICMOVXX || icode == IJXX)
+    {
+        if (ifun == UNCOND) return 1;
+        if (ifun == LESSEQ) return ((signFlag ^ overFlow) || zeroFlag == 1);
+        if (ifun == LESS) return (signFlag ^ overFlow);
+        if (ifun == EQUAL) return (zeroFlag == 1);
+        if (ifun == NOTEQUAL) return (zeroFlag == 0);
+        if (ifun == GREATER) return ((signFlag ^ overFlow) == 0 && zeroFlag == 0);
+        if (ifun == GREATEREQ) return ((signFlag ^ overFlow) == 0);
+    }
+    return 0;
 }

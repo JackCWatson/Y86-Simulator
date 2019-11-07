@@ -116,7 +116,9 @@ void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
        {
           putByte(Tools::getByte(value, i), address + i, imem_error);
        }
+
    }
+  
 }
 
 /**

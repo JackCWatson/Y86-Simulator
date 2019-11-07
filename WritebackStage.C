@@ -9,6 +9,7 @@
 #include "W.h"
 #include "Stage.h"
 #include "WritebackStage.h"
+#include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Instructions.h"
@@ -27,9 +28,21 @@ bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    W * wreg = (W *) pregs[WREG];
    uint64_t icode = wreg->geticode()->getOutput();
+
+   uint64_t valM = wreg->getvalM()->getOutput();
+   uint64_t dstM = wreg->getdstM()->getOutput();
+   bool error = false;
+
    if (icode == IHALT) return true;
+   
+   //MemoryStage * mem = (MemoryStage*) stages[MSTAGE];
+   RegisterFile * regFile = RegisterFile::getInstance();
+   //Error here?
+   regFile->writeRegister(valM, dstM, error);
+
    return false;
 }
+
 
 /* doClockHigh
  * applies the appropriate control signal to the F

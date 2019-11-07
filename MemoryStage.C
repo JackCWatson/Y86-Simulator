@@ -11,6 +11,7 @@
 #include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Memory.h"
 #include "Instructions.h"
 
 
@@ -27,20 +28,31 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
-   uint64_t valE = mreg->getvalE()->getOutput(), valM = 0;
-   uint64_t dstE = mreg->getdstE()->getOutput(), dstM = mreg->getdstM()->getOutput(), 
-       icode = mreg->geticode()->getOutput(), stat = mreg->getstat()->getOutput();
+   //Memory * memory = Memory::getInstance();
+   bool error = false;
+   uint64_t valE = mreg->getvalE()->getOutput();
+   uint64_t dstE = mreg->getdstE()->getOutput();
+   uint64_t dstM = mreg->getdstM()->getOutput();
+   uint64_t icode = mreg->geticode()->getOutput(); 
+   uint64_t stat = mreg->getstat()->getOutput();
+   uint64_t valA = mreg->getvalA()->getOutput();
+   valM = 0;
+   uint64_t m_addr = mem_addr(icode, valA, valE);
+   if (mem_read(icode))
+   {
+       Memory * memory = Memory::getInstance();
+       valM = memory->getLong(m_addr, error);
+   }
+   if (mem_write(icode))
+   {
+       Memory * memory = Memory::getInstance();
+       memory->putLong(valA, m_addr, error);
+   }
 
-   //code missing here to select the value of the PC
-   //and fetch the instruction from memory
-   //Fetching the instruction will allow the icode, ifun,
-   //rA, rB, and valC to be set.
-   //The lab assignment describes what methods need to be
-   //written.
 
-   //The value passed to setInput below will need to be changed
 
-   //provide the input values for the D register
+
+
    setWInput(wreg, stat, icode, valE, valM, dstE, dstM);
    return false;
 }
@@ -86,4 +98,24 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode,
    wreg->getvalM()->setInput(valM);
    wreg->getdstE()->setInput(dstE);
    wreg->getdstM()->setInput(dstM);
+}
+
+uint64_t MemoryStage::mem_addr(uint64_t icode, uint64_t m_valA, uint64_t m_valE)
+{
+    if (icode == IRMMOVQ || icode == IPUSHQ || icode == ICALL || icode == IMRMOVQ) return m_valE;
+    if (icode == IPOPQ || icode == IRET) return m_valA;
+    return 0;
+}
+bool MemoryStage::mem_read(uint64_t icode)
+{
+    return (icode == IMRMOVQ || icode == IPOPQ || icode == IRET);
+}
+bool MemoryStage::mem_write(uint64_t icode)
+{
+    return (icode == IRMMOVQ || icode == IPUSHQ || icode == ICALL);
+}
+
+uint64_t MemoryStage::getvalM()
+{
+    return valM;
 }

@@ -8,8 +8,8 @@ class DecodeStage: public Stage
       uint64_t d_srcB(uint64_t icode, PipeRegField * rB);
       uint64_t d_dstE(uint64_t icode, PipeRegField * rB);
       uint64_t d_dstM(uint64_t icode, PipeRegField * rA);
-      uint64_t d_valA(uint64_t d_srcA, ExecuteStage* eStage, M * mreg, W * wreg);
-      uint64_t d_valB(uint64_t d_srcB, ExecuteStage* eStage, M * mreg, W * wreg);
+      uint64_t d_valA(uint64_t d_srcA, ExecuteStage* eStage, MemoryStage* mStage, M * mreg, W * wreg, uint64_t icode, uint64_t valP);
+      uint64_t d_valB(uint64_t d_srcB, ExecuteStage* eStage, MemoryStage* mStage, M * mreg, W * wreg);
 
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);

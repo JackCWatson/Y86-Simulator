@@ -14,8 +14,10 @@ class ExecuteStage: public Stage
       uint64_t aluB(uint64_t icode, E * ereg);
       uint64_t alufun(uint64_t icode, E * ereg);
       bool set_cc(uint64_t icode);
-      uint64_t e_dstE(uint64_t icode, uint64_t e_Cnd, E * ereg);
+      uint64_t e_dstE(uint64_t icode, uint64_t e_Cnd, uint64_t e_dstE);
 
       uint64_t getValE();
       uint64_t getdstE();
+
+      uint64_t cond(uint64_t ifun, uint64_t icode);
 };
