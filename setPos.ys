@@ -1,0 +1,62 @@
+      .pos 0
+#Put your code here. You'll need some 
+#initialization code and then five chunks
+#of code that are basically identical.
+irmovq list, %rcx
+irmovq 4, %rbx
+mrmovq (%rcx), %rax
+nop
+nop
+nop
+addq %rbx, %rax
+rmmovq %rax, (%rcx)
+nop
+nop
+nop
+#2
+irmovq 0, %rbx
+mrmovq 8(%rcx), %rax
+nop
+nop
+nop
+addq %rbx, %rax
+rmmovq %rax, 8(%rcx)
+nop
+nop
+nop
+#3
+irmovq 30, %rbx
+mrmovq 16(%rcx), %rax
+nop
+nop
+nop
+addq %rbx, %rax
+rmmovq %rax, 16(%rcx)
+nop
+nop
+nop
+#4
+irmovq 0, %rbx
+mrmovq 24(%rcx), %rax
+nop
+nop
+nop
+addq %rbx, %rax
+rmmovq %rax, 24(%rcx)
+nop
+nop
+nop
+#5
+irmovq 2, %rbx
+mrmovq 32(%rcx), %rax
+nop
+nop
+nop
+addq %rbx, %rax
+rmmovq %rax, 32(%rcx)
+      .align 8
+list: .quad -2            #at end: 2
+      .quad 5             #at end: 5 
+      .quad -15           #at end: f
+      .quad 0             #at end: 0
+      .quad -1            #at end: 1
