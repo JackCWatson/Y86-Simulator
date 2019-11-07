@@ -29,16 +29,16 @@ bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    W * wreg = (W *) pregs[WREG];
    uint64_t icode = wreg->geticode()->getOutput();
 
-   uint64_t valM = wreg->getvalM()->getOutput();
-   uint64_t dstM = wreg->getdstM()->getOutput();
-   bool error = false;
+   //uint64_t valM = wreg->getvalM()->getOutput();
+   //uint64_t dstM = wreg->getdstM()->getOutput();
+   //bool error = false;
 
    if (icode == IHALT) return true;
    
    //MemoryStage * mem = (MemoryStage*) stages[MSTAGE];
-   RegisterFile * regFile = RegisterFile::getInstance();
+   //RegisterFile * regFile = RegisterFile::getInstance();
    //Error here?
-   regFile->writeRegister(valM, dstM, error);
+   //regFile->writeRegister(valM, dstM, error);
 
    return false;
 }
@@ -54,6 +54,9 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
 {
     W * wreg = (W *) pregs[WREG];
     bool error;
+    uint64_t valM = wreg->getvalM()->getOutput();
+    uint64_t dstM = wreg->getdstM()->getOutput();
     RegisterFile * regfile = RegisterFile::getInstance();
     regfile->writeRegister(wreg->getvalE()->getOutput(), wreg->getdstE()->getOutput(), error);
+    regfile->writeRegister(valM, dstM, error);
 }

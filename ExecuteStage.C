@@ -41,7 +41,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t dstM = ereg->getdstM()->getOutput();
    dstE = ereg->getdstE()->getOutput();
     
-   uint64_t e_aluFun = alufun(icode, ereg);
+   uint64_t e_aluFun = alufun(icode, ifun);
    uint64_t e_aluA = aluA(icode, ereg);
    uint64_t e_aluB = aluB(icode, ereg);
     
@@ -120,9 +120,9 @@ uint64_t ExecuteStage::aluB(uint64_t icode, E * ereg)
     return 0;
 }
 
-uint64_t ExecuteStage::alufun(uint64_t icode, E * ereg)
+uint64_t ExecuteStage::alufun(uint64_t icode, uint64_t ifun)
 {
-    if (icode == IOPQ) return ereg->getifun()->getOutput();
+    if (icode == IOPQ) return ifun;
     return ADDQ;
 }
 

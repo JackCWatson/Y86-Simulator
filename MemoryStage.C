@@ -36,19 +36,22 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t icode = mreg->geticode()->getOutput(); 
    uint64_t stat = mreg->getstat()->getOutput();
    uint64_t valA = mreg->getvalA()->getOutput();
+   
    valM = 0;
    uint64_t m_addr = mem_addr(icode, valA, valE);
+   
    if (mem_read(icode))
    {
        Memory * memory = Memory::getInstance();
        valM = memory->getLong(m_addr, error);
    }
+   
    if (mem_write(icode))
    {
        Memory * memory = Memory::getInstance();
        memory->putLong(valA, m_addr, error);
    }
-
+    
 
 
 
