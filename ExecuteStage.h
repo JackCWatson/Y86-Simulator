@@ -13,7 +13,8 @@ class ExecuteStage: public Stage
       uint64_t aluA(uint64_t icode, E * ereg);
       uint64_t aluB(uint64_t icode, E * ereg);
       uint64_t alufun(uint64_t icode, uint64_t ifun);
-      bool set_cc(uint64_t icode);
+      
+      bool set_cc(uint64_t icode, MemoryStage* mStage, W * wreg);
       uint64_t e_dstE(uint64_t icode, uint64_t e_Cnd, uint64_t e_dstE);
 
       uint64_t getValE();

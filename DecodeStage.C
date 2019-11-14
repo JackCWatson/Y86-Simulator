@@ -10,6 +10,7 @@
 #include "W.h"
 #include "Stage.h"
 #include "Instructions.h"
+//#include "MemoryStage.h"
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
 #include "DecodeStage.h"
