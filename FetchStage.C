@@ -33,21 +33,22 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
    bool error = false;
    uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+   uint64_t rA = RNONE, rB = RNONE;
+
+   //Working here
+   //uint64_t stat = SAOK;
+   uint64_t stat = f_stat(error, instr_valid(icode), icode);
+
    uint64_t f_pc = selectPC(freg, mreg, wreg);
    //bits 4-7 icode and 0-3 are ifun
    uint64_t instByte = Memory::getInstance()->getByte(f_pc, error);
    icode = Tools::getBits(instByte, 4, 7);
    ifun = Tools::getBits(instByte, 0, 3);
+
+
    valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
    uint64_t prediction = predictPC(icode, valC, valP);
-   //code missing here to select the value of the PC
-   //and fetch the instruction from memory
-   //Fetching the instruction will allow the icode, ifun,
-   //rA, rB, and valC to be set.
-   //The lab assignment describes what methods need to be
-   //written.
-   
+       
    //New code that checks needsRegIDs and needsValC
    if (needValC(icode)) valC = buildValC(f_pc, needRegIds(icode));
    if (needRegIds(icode)) getRegIds(f_pc, &rA, &rB);
@@ -60,7 +61,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    freg->getpredPC()->setInput(prediction);
 
    //provide the input values for the D register
-   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+   setDInput(dreg, stat, f_icode(error, icode), f_ifun(error, ifun), rA, rB, valC, valP);
    return false;
 }
 
@@ -110,7 +111,58 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
    dreg->getvalC()->setInput(valC);
    dreg->getvalP()->setInput(valP);
 }
- 
+uint64_t FetchStage::f_icode(bool mem_error, uint64_t icode)
+{
+    if (mem_error) return INOP;
+    return icode;
+}
+uint64_t FetchStage::f_ifun(bool mem_error, uint64_t ifun)
+{
+    if (mem_error) return FNONE;
+    return ifun;
+}
+uint64_t FetchStage::f_stat(bool mem_error, bool isValid, uint64_t icode)
+{
+    if (mem_error == true) return SADR;
+    if (isValid == false) return SINS;
+    if (icode == IHALT) return SHLT;
+    return SAOK;
+}
+
+bool FetchStage::instr_valid(uint64_t icode)
+{
+    switch(icode)
+    {
+        case INOP:
+            return true;
+        case IHALT:
+            return true;
+        case IRRMOVQ:
+            return true;
+        case IIRMOVQ:
+            return true;
+        case IRMMOVQ:
+            return true;
+        case IMRMOVQ:
+            return true;
+        case IOPQ:
+            return true;
+        case IJXX:
+            return true;
+        case ICALL:
+            return true;
+        case IRET:
+            return true;
+        case IPUSHQ:
+            return true;
+        case IPOPQ:
+            return true;
+        default:
+            return false;
+    }
+}
+
+
 uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
 {
     uint64_t M_icode = mreg->geticode()->getOutput(), M_Cnd = mreg->getCnd()->getOutput(),
