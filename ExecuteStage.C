@@ -34,8 +34,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    W * wreg = (W *) pregs[WREG];
    MemoryStage * mStage = (MemoryStage*)stages[MSTAGE];
    uint64_t m_stat = mStage->getm_stat(); 
-   //uint64_t Cnd = 0;
-
+   M_bubble = calculateControlSignals(m_stat, wreg);
 
    uint64_t stat = ereg->getstat()->getOutput();
    uint64_t icode = ereg->geticode()->getOutput();
@@ -70,14 +69,28 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
    M * mreg = (M *) pregs[MREG];
+   if (!M_bubble)
+   {
+       mreg->getstat()->normal();
+       mreg->geticode()->normal();
+       mreg->getCnd()->normal();
+       mreg->getvalE()->normal();
+       mreg->getvalA()->normal();
+       mreg->getdstE()->normal();
+       mreg->getdstM()->normal();
+   }
+   else
+   {
+       mreg->getstat()->bubble(SAOK);
+       mreg->geticode()->bubble(INOP);
+       mreg->getCnd()->bubble();
+       mreg->getvalE()->bubble();
+       mreg->getvalA()->bubble();
+       mreg->getdstE()->bubble(RNONE);
+       mreg->getdstM()->bubble(RNONE);
 
-   mreg->getstat()->normal();
-   mreg->geticode()->normal();
-   mreg->getCnd()->normal();
-   mreg->getvalE()->normal();
-   mreg->getvalA()->normal();
-   mreg->getdstE()->normal();
-   mreg->getdstM()->normal();
+   }
+
 }
 
 /* setDInput
@@ -207,4 +220,9 @@ uint64_t ExecuteStage::cond(uint64_t ifun, uint64_t icode)
         if (ifun == GREATEREQ) return ((signFlag ^ overFlow) == 0);
     }
     return 0;
+}
+
+bool ExecuteStage::calculateControlSignals(uint64_t m_stat, W * wreg) {
+    uint64_t w_stat = wreg->getstat()->getOutput();
+    return ((m_stat == SADR || m_stat == SINS || m_stat == SHLT) || (w_stat == SADR || w_stat == SINS || w_stat == SHLT));
 }
