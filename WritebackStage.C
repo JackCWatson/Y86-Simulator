@@ -26,19 +26,15 @@
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
 
-   W * wreg = (W *) pregs[WREG];
-   uint64_t icode = wreg->geticode()->getOutput();
-
-   //uint64_t valM = wreg->getvalM()->getOutput();
-   //uint64_t dstM = wreg->getdstM()->getOutput();
-   //bool error = false;
-
-   if (icode == IHALT) return true;
+   //W * wreg = (W *) pregs[WREG];
+   //might be able to delete this icode line below later
+   //uint64_t icode = wreg->geticode()->getOutput();
+   MemoryStage * mstage = (MemoryStage*)stages[MSTAGE];
+   uint64_t stat = mstage->getm_stat();
    
-   //MemoryStage * mem = (MemoryStage*) stages[MSTAGE];
-   //RegisterFile * regFile = RegisterFile::getInstance();
-   //Error here?
-   //regFile->writeRegister(valM, dstM, error);
+
+   if (stat != SAOK) return true;
+   
 
    return false;
 }
