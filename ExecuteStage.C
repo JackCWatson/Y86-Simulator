@@ -9,7 +9,6 @@
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
-//#include "MemoryStage.h"
 #include "ExecuteStage.h"
 #include "MemoryStage.h"
 #include "Status.h"
@@ -32,9 +31,9 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    M * mreg = (M *) pregs[MREG];
    E * ereg = (E *) pregs[EREG];
-   W * ereg = (W *) pregs[WREG];
+   W * wreg = (W *) pregs[WREG];
    MemoryStage * mStage = (MemoryStage*)stages[MSTAGE];
-   
+   uint64_t m_stat = mStage->getm_stat(); 
    //uint64_t Cnd = 0;
 
 
@@ -49,7 +48,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t e_aluA = aluA(icode, ereg);
    uint64_t e_aluB = aluB(icode, ereg);
     
-   valE = e_alu(e_aluFun, set_cc(icode, mStage, wreg), e_aluA, e_aluB);
+   valE = e_alu(e_aluFun, set_cc(icode, m_stat, wreg), e_aluA, e_aluB);
    //Just Added
    uint64_t e_cond = cond(ifun, icode);
    dstE = e_dstE(icode, e_cond, dstE);
@@ -131,11 +130,10 @@ uint64_t ExecuteStage::alufun(uint64_t icode, uint64_t ifun)
 }
 
 //come back and check on this method
-bool ExecuteStage::set_cc(uint64_t icode, MemoryStage* mStage, W * wreg)
+bool ExecuteStage::set_cc(uint64_t icode, uint64_t m_stat, W * wreg)
 {
-    uint64_t m_stat = mStage->getm_stat();
     uint64_t w_stat = wreg->getstat()->getOutput();
-    return (icode == IOPQ && (m_stat != SADR || m_stat != SINS || m_stat != SHLT) && (w_stat != SADR || w_stat != SINS || w_stat != SHLT))
+    return (icode == IOPQ && (m_stat != SADR || m_stat != SINS || m_stat != SHLT) && (w_stat != SADR || w_stat != SINS || w_stat != SHLT));
     //return (icode == IOPQ);
 }
 
