@@ -55,7 +55,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 
 
 
-   setWInput(wreg, m_stat(error, stat), icode, valE, valM, dstE, dstM);
+  setWInput(wreg, m_stat(error, stat), icode, valE, valM, dstE, dstM);
    return false;
 }
 

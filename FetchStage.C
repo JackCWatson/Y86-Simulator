@@ -32,21 +32,18 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    W * wreg = (W *) pregs[WREG];
 
    bool error = false;
-   uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
+   uint64_t valC = 0;
    uint64_t rA = RNONE, rB = RNONE;
 
-   //Working here
-   //uint64_t stat = SAOK;
-   uint64_t stat = f_stat(error, instr_valid(icode), icode);
 
    uint64_t f_pc = selectPC(freg, mreg, wreg);
    //bits 4-7 icode and 0-3 are ifun
    uint64_t instByte = Memory::getInstance()->getByte(f_pc, error);
-   icode = Tools::getBits(instByte, 4, 7);
-   ifun = Tools::getBits(instByte, 0, 3);
+   uint64_t icode = f_icode(error, Tools::getBits(instByte, 4, 7));
+   uint64_t ifun = f_ifun(error, Tools::getBits(instByte, 0, 3));
+   uint64_t stat = f_stat(error, instr_valid(icode), icode); 
 
-
-   valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
+   uint64_t valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
    uint64_t prediction = predictPC(icode, valC, valP);
        
    //New code that checks needsRegIDs and needsValC
@@ -61,7 +58,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    freg->getpredPC()->setInput(prediction);
 
    //provide the input values for the D register
-   setDInput(dreg, stat, f_icode(error, icode), f_ifun(error, ifun), rA, rB, valC, valP);
+   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
    return false;
 }
 

@@ -69,8 +69,20 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
    M * mreg = (M *) pregs[MREG];
+   E * ereg = (E *) pregs[EREG];
    if (!M_bubble)
    {
+       ereg->getstat()->normal();
+       ereg->geticode()->normal();
+       ereg->getifun()->normal();
+       ereg->getvalB()->normal();
+       ereg->getvalA()->normal();
+       ereg->getvalC()->normal();
+       ereg->getdstE()->normal();
+       ereg->getdstM()->normal();
+       ereg->getsrcA()->normal();
+       ereg->getsrcB()->normal();
+       
        mreg->getstat()->normal();
        mreg->geticode()->normal();
        mreg->getCnd()->normal();
@@ -146,8 +158,7 @@ uint64_t ExecuteStage::alufun(uint64_t icode, uint64_t ifun)
 bool ExecuteStage::set_cc(uint64_t icode, uint64_t m_stat, W * wreg)
 {
     uint64_t w_stat = wreg->getstat()->getOutput();
-    return (icode == IOPQ && (m_stat != SADR || m_stat != SINS || m_stat != SHLT) && (w_stat != SADR || w_stat != SINS || w_stat != SHLT));
-    //return (icode == IOPQ);
+    return (icode == IOPQ && !(m_stat == SADR || m_stat == SINS || m_stat == SHLT) && !(w_stat == SADR || w_stat == SINS || w_stat == SHLT));
 }
 
 uint64_t ExecuteStage::e_alu(uint64_t alufun, bool setCC, uint64_t aluA, uint64_t aluB)
