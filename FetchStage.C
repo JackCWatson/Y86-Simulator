@@ -4,11 +4,15 @@
 #include "PipeRegField.h"
 #include "PipeReg.h"
 #include "F.h"
+#include "E.h"
 #include "D.h"
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
 #include "FetchStage.h"
+#include "ExecuteStage.h"
+#include "MemoryStage.h"
+#include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Instructions.h"
@@ -30,10 +34,13 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    D * dreg = (D *) pregs[DREG];
    M * mreg = (M *) pregs[MREG];
    W * wreg = (W *) pregs[WREG];
-
+   DecodeStage * dStage = (DecodeStage*)stages[DSTAGE];
+   uint64_t d_srcA = dStage->getd_srcA(); 
+   uint64_t d_srcB = dStage->getd_srcB();
    bool error = false;
    uint64_t valC = 0;
    uint64_t rA = RNONE, rB = RNONE;
+   calculateControlSignals(pregs, d_srcA, d_srcB);
 
 
    uint64_t f_pc = selectPC(freg, mreg, wreg);
@@ -41,7 +48,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t instByte = Memory::getInstance()->getByte(f_pc, error);
    uint64_t icode = f_icode(error, Tools::getBits(instByte, 4, 7));
    uint64_t ifun = f_ifun(error, Tools::getBits(instByte, 0, 3));
-   uint64_t stat = f_stat(error, instr_valid(icode), icode); 
+   uint64_t stat = f_stat(error, icode); 
 
    uint64_t valP = PCIncrement(f_pc, needRegIds(icode), needValC(icode));
    uint64_t prediction = predictPC(icode, valC, valP);
@@ -72,7 +79,7 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
-
+   
    freg->getpredPC()->normal();
    dreg->getstat()->normal();
    dreg->geticode()->normal();
@@ -118,10 +125,10 @@ uint64_t FetchStage::f_ifun(bool mem_error, uint64_t ifun)
     if (mem_error) return FNONE;
     return ifun;
 }
-uint64_t FetchStage::f_stat(bool mem_error, bool isValid, uint64_t icode)
+uint64_t FetchStage::f_stat(bool mem_error, uint64_t icode)
 {
     if (mem_error == true) return SADR;
-    if (isValid == false) return SINS;
+    if (instr_valid(icode) == false) return SINS;
     if (icode == IHALT) return SHLT;
     return SAOK;
 }
@@ -209,7 +216,7 @@ void FetchStage::getRegIds(uint64_t fpc, uint64_t * rA, uint64_t * rB)
     *rB = valrB;
 }
 
-uint64_t FetchStage:: buildValC(uint64_t fpc, bool needRegIds)
+uint64_t FetchStage::buildValC(uint64_t fpc, bool needRegIds)
 {
     int offSetCalc = fpc + 1;
     bool errorInput;
@@ -223,4 +230,28 @@ uint64_t FetchStage:: buildValC(uint64_t fpc, bool needRegIds)
     return Tools::buildLong(valC);
 
 }
+
+bool FetchStage::getF_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB)
+{
+    return ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)); 
+}
+
+bool FetchStage::getD_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB)
+{
+    return ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB));
+}
+
+bool FetchStage::calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB)
+{
+    E * ereg = (E*) pregs[EREG];
+    uint64_t E_icode = ereg->geticode()->getOutput();
+    uint64_t E_dstM = ereg->getdstM()->getOutput();
+    
+    return (getF_stall(E_icode, E_dstM, d_srcA, d_srcB) || getD_stall(E_icode, E_dstM, d_srcA, d_srcB));
+
+}
+
+
+
+
 

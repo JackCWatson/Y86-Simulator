@@ -26,11 +26,10 @@
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
 
-   //W * wreg = (W *) pregs[WREG];
+   W * wreg = (W *) pregs[WREG];
    //might be able to delete this icode line below later
    //uint64_t icode = wreg->geticode()->getOutput();
-   MemoryStage * mstage = (MemoryStage*)stages[MSTAGE];
-   uint64_t stat = mstage->getm_stat();
+   uint64_t stat = wreg->getstat()->getOutput();
    
 
    if (stat != SAOK) return true;

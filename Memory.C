@@ -105,7 +105,7 @@ uint8_t Memory::getByte(int32_t address, bool & imem_error)
  */
 void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
 {
-   if (address % 8 != 0 || address >= MEMSIZE || address < 0) 
+   if (address % 8 != 0 || MEMSIZE < address + 7 || address < 0) 
    {
        imem_error = true;
    }

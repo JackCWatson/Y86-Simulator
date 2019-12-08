@@ -33,7 +33,6 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t dstE = mreg->getdstE()->getOutput();
    uint64_t dstM = mreg->getdstM()->getOutput();
    uint64_t icode = mreg->geticode()->getOutput(); 
-   stat = mreg->getstat()->getOutput();
    uint64_t valA = mreg->getvalA()->getOutput();
    
    valM = 0;
@@ -50,12 +49,12 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
        Memory * memory = Memory::getInstance();
        memory->putLong(valA, m_addr, error);
    }
-    
+   stat = m_stat(error, mreg->getstat()->getOutput()); 
 
 
 
 
-  setWInput(wreg, m_stat(error, stat), icode, valE, valM, dstE, dstM);
+  setWInput(wreg, stat, icode, valE, valM, dstE, dstM);
    return false;
 }
 

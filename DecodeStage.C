@@ -40,8 +40,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t stat = dreg->getstat()->getOutput();
    //Added ValP
    uint64_t valP = dreg->getvalP()->getOutput();
-   uint64_t srcA = d_srcA(icode, dreg->getrA());
-   uint64_t srcB = d_srcB(icode, dreg->getrB());
+   srcA = d_srcA(icode, dreg->getrA());
+   srcB = d_srcB(icode, dreg->getrB());
    uint64_t dstE = d_dstE(icode, dreg->getrB());
    uint64_t dstM = d_dstM(icode, dreg->getrA());
    uint64_t valA = d_valA(srcA, eStage, mStage, mreg, wreg, icode, valP); 
@@ -158,4 +158,13 @@ uint64_t DecodeStage::d_valB(uint64_t d_srcB, ExecuteStage* eStage, MemoryStage*
 
     RegisterFile * reg = RegisterFile::getInstance();
     return reg->readRegister(d_srcB, error);
+}
+
+uint64_t DecodeStage::getd_srcA()
+{
+    return srcA;
+}
+uint64_t DecodeStage::getd_srcB()
+{
+    return srcB;
 }
