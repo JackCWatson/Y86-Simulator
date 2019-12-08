@@ -20,6 +20,28 @@
 #
 insertBST: #address of root node is in %rdi
            #address of node to insert is in %rsi 
+
+           irmovq 16, %r8
+           irmovq 8, %r11
+           
+           rrmovq %rsi, %r10
+           addq %r8, %r10 
+           mrmovq (%r10), %r10
+compare:
+           andq %rdi, %rdi
+           je swap  
+           rrmovq %rdi, %r9 
+           addq %r8, %r9 
+           mrmovq (%r9), %r9
+           subq %r10, %r9 
+           jg leftparent
+           mrmovq 8(%rdi), %rdi
+           jmp compare
+leftparent:
+           mrmovq (%rdi), %rdi
+           jmp compare  
+swap:
+           rmmovq %rsi, (%rdi)
 done:  ret
 #
        .pos 0x200
