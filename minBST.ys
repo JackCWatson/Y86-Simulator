@@ -11,6 +11,23 @@
        halt   
 minBST: #address of root node is in %rdi
         #returns the minimum value in the tree in register %rax
+        
+        irmovq 16, %r8
+        irmovq 0, %rax
+        irmovq 1, %rdx
+loop:
+        andq %rdx, %rdx
+        je findMinValue
+        rrmovq %rdi, %rsi
+        mrmovq (%rdi), %rdx
+        andq %rsi, %rsi
+        rrmovq %rdx, %rdi
+        jmp loop
+
+findMinValue:
+        addq %r8, %rsi
+        mrmovq (%rsi), %rax
+        
 done:  ret
 #
        .align 8
