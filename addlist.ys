@@ -9,6 +9,16 @@
 #            is the adress of the first element in the list
 # return: %rax contains the sum
 addList: 
+         irmovq 8, %r8
+         irmovq 0, %rax
+loop:
+         mrmovq (%rdi), %rdx
+         andq %rdx, %rdx
+         je complete
+         addq %r8, %rdi
+         addq %rdx, %rax
+         jmp loop
+complete:
          ret  
          .align 8
 list:    .quad 2
