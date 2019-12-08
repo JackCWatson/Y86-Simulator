@@ -9,6 +9,21 @@
 #            is the adress of the first element in the list
 # return: %rax contains the minimum value in the list
 minList: 
+         irmovq 8, %r8
+         irmovq 0, %rax
+         mrmovq (%rdi), %rax
+loop:
+         mrmovq (%rdi), %rdx
+         rrmovq %rdx, %r9
+         subq %rax, %r9
+         cmovle %rdx, %rax
+         andq %rdx, %rdx
+         je complete
+         andq %rdi, %rdi
+         je complete
+         addq %r8, %rdi
+         jmp loop
+complete:
          ret  
          .align 8
 list:    .quad 22
