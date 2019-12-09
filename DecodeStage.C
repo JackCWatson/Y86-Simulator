@@ -46,6 +46,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    uint64_t dstM = d_dstM(icode, dreg->getrA());
    uint64_t valA = d_valA(srcA, eStage, mStage, mreg, wreg, icode, valP); 
    uint64_t valB = d_valB(srcB, eStage, mStage, mreg, wreg);
+   
+   calculateControlSignals(pregs, srcA, srcB);
 
    setEInput(ereg, stat, icode, ifun, valC, valA, valB, dstE, dstM, srcA, srcB);
    return false;
@@ -59,18 +61,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  */
 void DecodeStage::doClockHigh(PipeReg ** pregs)
 {
-   E * ereg = (E *) pregs[EREG];
-
-   ereg->getstat()->normal();
-   ereg->geticode()->normal();
-   ereg->getifun()->normal();
-   ereg->getvalC()->normal();
-   ereg->getvalA()->normal();
-   ereg->getvalB()->normal();
-   ereg->getdstE()->normal();
-   ereg->getdstM()->normal();
-   ereg->getsrcA()->normal();
-   ereg->getsrcB()->normal();
+    if(E_bubble) bubbleE(pregs);
+    else normalE(pregs);
 }
 
 /* setDInput
@@ -198,4 +190,61 @@ uint64_t DecodeStage::getd_srcA()
 uint64_t DecodeStage::getd_srcB()
 {
     return srcB;
+}
+
+/*
+ *@param E_icode this checks to see if the icode causes the execute stage to be bubbled
+ *@param E_dstM this is compared to d_srcA or d_srcB
+ *@param d_srcA is compared to E_dstM
+ *@param d_srcB is compared to E_dstM
+ */
+bool DecodeStage::getE_bubble(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB)
+{
+    return ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB));
+}
+/*
+ * @param pregs this is so the method has access to the E register and its fields
+ * @param d_srcA is passed to E_bubble to determine its boolean value
+ * @param d_srcB is passed to E_bubble to determine its boolean value
+ */
+void DecodeStage::calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB)
+{
+    E * ereg = (E*) pregs[EREG];
+    uint64_t E_icode = ereg->geticode()->getOutput();
+    uint64_t E_dstM = ereg->getdstM()->getOutput();
+    E_bubble = getE_bubble(E_icode, E_dstM, d_srcA, d_srcB);
+}
+/*
+ * @param pregs is passed to allow the method access to the e register and its fields
+ */
+void DecodeStage::bubbleE(PipeReg ** pregs)
+{
+    E * ereg = (E*) pregs[EREG];
+    ereg->getstat()->bubble(SAOK);                            
+    ereg->geticode()->bubble(INOP);
+    ereg->getifun()->bubble();
+    ereg->getvalB()->bubble();
+    ereg->getvalA()->bubble();
+    ereg->getvalC()->bubble();
+    ereg->getdstE()->bubble(RNONE);
+    ereg->getdstM()->bubble(RNONE);
+    ereg->getsrcA()->bubble(RNONE);
+    ereg->getsrcB()->bubble(RNONE);
+}
+/*
+ * @param pregs is passed to allow the method access to the e register and its fields
+ */
+void DecodeStage::normalE(PipeReg ** pregs)
+{
+    E * ereg = (E*) pregs[EREG];
+    ereg->getstat()->normal();
+    ereg->geticode()->normal();
+    ereg->getifun()->normal();
+    ereg->getvalC()->normal();
+    ereg->getvalA()->normal();
+    ereg->getvalB()->normal();
+    ereg->getdstE()->normal();
+    ereg->getdstM()->normal();
+    ereg->getsrcA()->normal();
+    ereg->getsrcB()->normal();
 }
