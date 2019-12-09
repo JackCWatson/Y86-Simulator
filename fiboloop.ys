@@ -18,7 +18,16 @@ main:     irmovq stack, %rsp
 #        store the numbers
 #
 fibo:     #put your code here  
-        
+
+
+
+# Did not have time to finish, but will attempt to get some points for pseudo code.
+# Need a couple registers to maintain previous values, similar to the test you have to keep a counter
+# compairng the counter to the input of 20. While useing another 2 additional registers to mainaint the Fibionacci numbers
+# Finally, you have to write them to the address of list fibolst
+
+
+
 done:     ret
 #
           .align 8
