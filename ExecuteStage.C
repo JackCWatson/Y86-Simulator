@@ -131,6 +131,10 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode,
    mreg->getdstM()->setInput(dstM);
 }
 
+/*
+ * @param icode used to see what kind of instruction is passed
+ * @param ereg used ot obtain the valA of the ereg
+ */
 uint64_t ExecuteStage::aluA(uint64_t icode, E * ereg)
 {
     if (icode == IRRMOVQ || icode == IOPQ) return ereg->getvalA()->getOutput();
@@ -139,7 +143,10 @@ uint64_t ExecuteStage::aluA(uint64_t icode, E * ereg)
     if (icode == IRET || icode == IPOPQ) return 8;
     return 0;
 }
-
+/*
+ * @param icode used to see what kind of instruction is passed
+ * @param ereg used ot obtain the valB of the ereg
+ */
 uint64_t ExecuteStage::aluB(uint64_t icode, E * ereg)
 {
     if (icode == IRMMOVQ || icode == IMRMOVQ || icode == IOPQ || icode == ICALL || icode == IPUSHQ ||
@@ -147,20 +154,32 @@ uint64_t ExecuteStage::aluB(uint64_t icode, E * ereg)
     if (icode == IRRMOVQ || icode == IIRMOVQ) return 0;
     return 0;
 }
-
+/*
+ * @param icode if this is a IOPQ the ifun is returned
+ * @parm ifun is returned if icode is IOPQ
+ */
 uint64_t ExecuteStage::alufun(uint64_t icode, uint64_t ifun)
 {
     if (icode == IOPQ) return ifun;
     return ADDQ;
 }
 
-//come back and check on this method
+/*
+ * @param icode sees if an iopq is used
+ * @param m_stat checks to see what value for the stat field is used
+ * @param wreg is used obtain the value of the stat field in the wreg
+ */
 bool ExecuteStage::set_cc(uint64_t icode, uint64_t m_stat, W * wreg)
 {
     uint64_t w_stat = wreg->getstat()->getOutput();
     return (icode == IOPQ && !(m_stat == SADR || m_stat == SINS || m_stat == SHLT) && !(w_stat == SADR || w_stat == SINS || w_stat == SHLT));
 }
-
+/*
+ * @param alufun see what mathmatical operation is being performed
+ * @param setCC says if the conditioncodes have been set
+ * @param aluA is the value of the rA
+ * @param aluB is the value of the rB
+ */
 uint64_t ExecuteStage::e_alu(uint64_t alufun, bool setCC, uint64_t aluA, uint64_t aluB)
 {
      bool checkOverflow = false;
@@ -195,23 +214,35 @@ uint64_t ExecuteStage::e_alu(uint64_t alufun, bool setCC, uint64_t aluA, uint64_
      return result;
 }
 
-
+/*
+ * @param icode checks for a irmovq or a condition code
+ * @param e_Cnd compares to the icdoe of the execute stage
+ * @param e_dstE is returned if there is no irmovq
+ */
 uint64_t ExecuteStage::e_dstE(uint64_t icode, uint64_t e_Cnd, uint64_t e_dstE)
 {
     //what id e_Cnd
     if (icode == IRRMOVQ && !e_Cnd) return RNONE;
     return e_dstE; //ereg->getdstE()->getOutput();
 }
-
+/*
+ * @return dstE
+ */
 uint64_t ExecuteStage::getdstE()
 {
     return dstE;
 }
+/*
+ *@returns valE
+ */
 uint64_t ExecuteStage::getValE()
 {
     return valE;
 }
-// Add to header file, and change DOCLOCKLOW
+/*
+ * @param ifun checks the to see what value the compare of the move or jump is
+ * @param icode is used to see if the instruction is a jump or call
+ */
 uint64_t ExecuteStage::cond(uint64_t ifun, uint64_t icode)
 {
     bool error = false;
@@ -232,7 +263,10 @@ uint64_t ExecuteStage::cond(uint64_t ifun, uint64_t icode)
     }
     return 0;
 }
-
+/*
+ * @param m_stat used to compare against values to return a boolean value
+ * @param wreg used to obtain the w_stat value
+ */
 bool ExecuteStage::calculateControlSignals(uint64_t m_stat, W * wreg) {
     uint64_t w_stat = wreg->getstat()->getOutput();
     return ((m_stat == SADR || m_stat == SINS || m_stat == SHLT) || (w_stat == SADR || w_stat == SINS || w_stat == SHLT));

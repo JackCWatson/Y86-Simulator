@@ -100,32 +100,50 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode,
    wreg->getdstE()->setInput(dstE);
    wreg->getdstM()->setInput(dstM);
 }
-
+/*
+ * @param icode checks to see if the instruction uses valE or valA
+ * @param m_valA is returned if the instruction is a popq or ret
+ * @param m_valE is returned if the instruction is a rmmovq pushq call or mrmovq
+ */
 uint64_t MemoryStage::mem_addr(uint64_t icode, uint64_t m_valA, uint64_t m_valE)
 {
     if (icode == IRMMOVQ || icode == IPUSHQ || icode == ICALL || icode == IMRMOVQ) return m_valE;
     if (icode == IPOPQ || icode == IRET) return m_valA;
     return 0;
 }
+/*
+ * @param icode if the instruction reads from memory then return true
+ */
 bool MemoryStage::mem_read(uint64_t icode)
 {
     return (icode == IMRMOVQ || icode == IPOPQ || icode == IRET);
 }
+/*
+ * @param icode if the instruction writes to memory then return truee
+ */
 bool MemoryStage::mem_write(uint64_t icode)
 {
     return (icode == IRMMOVQ || icode == IPUSHQ || icode == ICALL);
 }
 
+/*
+ * @return valM
+ */
 uint64_t MemoryStage::getvalM()
 {
     return valM;
 }
-
+/*
+ * @param mem_error controls what is returned determined on its value
+ * @param M_stat value of stat in memeory stage and is returned if mem_error is false
+ */
 uint64_t MemoryStage::m_stat(bool mem_error, uint64_t M_stat) {
     if (mem_error) return SADR;
     return M_stat;
 }
-
+/*
+ * @return stat
+ */
 uint64_t MemoryStage::getm_stat() {
     return stat;
 }

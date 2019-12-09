@@ -17,7 +17,7 @@ class FetchStage: public Stage
       bool F_stall, D_stall;
       bool getF_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
       bool getD_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB);
-      bool calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB);
+      void calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB);
 
 
       uint64_t f_stat(bool error, uint64_t icode);

@@ -79,15 +79,20 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
-   
-   freg->getpredPC()->normal();
-   dreg->getstat()->normal();
-   dreg->geticode()->normal();
-   dreg->getifun()->normal();
-   dreg->getrA()->normal();
-   dreg->getrB()->normal();
-   dreg->getvalC()->normal();
-   dreg->getvalP()->normal();
+   if(!F_stall)
+   {
+       freg->getpredPC()->normal();
+   }
+   if(!D_stall)
+   {
+       dreg->getstat()->normal();
+       dreg->geticode()->normal();
+       dreg->getifun()->normal();
+       dreg->getrA()->normal();
+       dreg->getrB()->normal();
+       dreg->getvalC()->normal();
+       dreg->getvalP()->normal();
+   }
 }
 
 /* setDInput
@@ -115,16 +120,28 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
    dreg->getvalC()->setInput(valC);
    dreg->getvalP()->setInput(valP);
 }
+/*
+ * @param mem_error will be used to return a nop if true 
+ * @param icode is used to return if there isn't an error
+ */
 uint64_t FetchStage::f_icode(bool mem_error, uint64_t icode)
 {
     if (mem_error) return INOP;
     return icode;
 }
+/*
+ * @param mem_error will return FNONe if it is true
+ * @param ifun will be returned if there is no error
+ */
 uint64_t FetchStage::f_ifun(bool mem_error, uint64_t ifun)
 {
     if (mem_error) return FNONE;
     return ifun;
 }
+/*
+ * @param mem_error is used to determine which value to return
+ * @parap icode is used to determine if there is a valid instruction or the program needs to halt
+ */
 uint64_t FetchStage::f_stat(bool mem_error, uint64_t icode)
 {
     if (mem_error == true) return SADR;
@@ -132,7 +149,9 @@ uint64_t FetchStage::f_stat(bool mem_error, uint64_t icode)
     if (icode == IHALT) return SHLT;
     return SAOK;
 }
-
+/*
+ * @param icode is used to determine which operation needs to be performed
+ */
 bool FetchStage::instr_valid(uint64_t icode)
 {
     switch(icode)
@@ -166,7 +185,11 @@ bool FetchStage::instr_valid(uint64_t icode)
     }
 }
 
-
+/*
+ * @param freg will be used to access the freg fields
+ * @param mreg will be used to access the mreg fields
+ * @param wreg will be used to access the wreg fields
+ */
 uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
 {
     uint64_t M_icode = mreg->geticode()->getOutput(), M_Cnd = mreg->getCnd()->getOutput(),
@@ -177,18 +200,27 @@ uint64_t FetchStage::selectPC(F * freg, M * mreg, W * wreg)
     return freg->getpredPC()->getOutput();
 
 }
-
+/*
+ * @param f_icode will be used to see if the regId is needed
+ */
 bool FetchStage::needRegIds(uint64_t f_icode)
 {
     return (f_icode == IRRMOVQ || f_icode == IOPQ || f_icode == IPUSHQ ||
         f_icode == IPOPQ || f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ);
 }
-
+/*
+ * @param f_icode used to compare to the instructions icodes
+ */
 bool FetchStage::needValC(uint64_t f_icode)
 {
     return (f_icode == IIRMOVQ || f_icode == IRMMOVQ || f_icode == IMRMOVQ ||
         f_icode == IJXX || f_icode == ICALL);
 }
+/*
+ * @param fpc returns the amount that the fpc needs to be updated by
+ * @param nRegID used to increment the pc counter
+ * @param nValC used to increment the pc counter by 8
+ */
 uint64_t FetchStage::PCIncrement(uint64_t fpc, bool nRegID, bool nValC)
 {
     if (nRegID) fpc += 1;
@@ -196,13 +228,21 @@ uint64_t FetchStage::PCIncrement(uint64_t fpc, bool nRegID, bool nValC)
     fpc += 1;
     return fpc;
 }
-
+/*
+ * @param f_icode compared against a jump and call to return valC
+ * @param f_valC returns the valC if a call or jump are the icodes
+ * @param v_valP is returned if there is no jump or call
+ */
 uint64_t FetchStage::predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP)
 {
     if (f_icode == IJXX || f_icode == ICALL) return f_valC;
     return f_valP;
 }
-
+/*
+ * @param fpc is used to increment memory
+ * @param rA is used to obtain the first register in the instruction
+ * @param rB is used to obtain the secont register in the instruction
+ */
 void FetchStage::getRegIds(uint64_t fpc, uint64_t * rA, uint64_t * rB)
 {
     bool errorInput;
@@ -215,7 +255,10 @@ void FetchStage::getRegIds(uint64_t fpc, uint64_t * rA, uint64_t * rB)
     *rA = valrA;
     *rB = valrB;
 }
-
+/*
+ * @param fpc is uesd to increment the pc counter
+ * @param needsRedIds will be used to create an offset
+ */
 uint64_t FetchStage::buildValC(uint64_t fpc, bool needRegIds)
 {
     int offSetCalc = fpc + 1;
@@ -230,24 +273,38 @@ uint64_t FetchStage::buildValC(uint64_t fpc, bool needRegIds)
     return Tools::buildLong(valC);
 
 }
-
+/*
+ * @param E_icode used to chekc if the icode is a MRMOVQ or a POPQ
+ * @param E_dstM is used to compare to d_srcA and d_srcB
+ * @param d_srcA is used to compare to E_dstM
+ * @param d_srcB is used to compare to E_dstM
+ */
 bool FetchStage::getF_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB)
 {
     return ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB)); 
 }
-
+/*
+ * @param E_icode used to chekc if the icode is a MRMOVQ or a POPQ
+ * @param E_dstM is used to compare to d_srcA and d_srcB
+ * @param d_srcA is used to compare to E_dstM
+ * @param d_srcB is used to compare to E_dstM
+ */
 bool FetchStage::getD_stall(uint64_t E_icode, uint64_t E_dstM, uint64_t d_srcA, uint64_t d_srcB)
 {
     return ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d_srcA || E_dstM == d_srcB));
 }
-
-bool FetchStage::calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB)
+/*
+ * @param pregs points to the registers to any of their values can be accessed
+ * @param d_srcA passed to the F_stall and D_stall so they can obtain those values
+ * @param d_srcB passed to the F_stall and D_stall so they can obtain those values
+ */
+void FetchStage::calculateControlSignals(PipeReg ** pregs, uint64_t d_srcA, uint64_t d_srcB)
 {
     E * ereg = (E*) pregs[EREG];
     uint64_t E_icode = ereg->geticode()->getOutput();
-    uint64_t E_dstM = ereg->getdstM()->getOutput();
-    
-    return (getF_stall(E_icode, E_dstM, d_srcA, d_srcB) || getD_stall(E_icode, E_dstM, d_srcA, d_srcB));
+    uint64_t E_dstM = ereg->getdstM()->getOutput(); 
+    F_stall = getF_stall(E_icode, E_dstM, d_srcA, d_srcB);
+    D_stall = getD_stall(E_icode, E_dstM, d_srcA, d_srcB);
 
 }
 

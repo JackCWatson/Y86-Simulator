@@ -101,34 +101,54 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode,
    ereg->getvalA()->setInput(valA);
    ereg->getvalB()->setInput(valB);
 }
-
+/*
+ * @param icode to be comapred to values of actual icodes
+ * @param rA to obtain the value of what is in rA
+ */
 uint64_t DecodeStage::d_srcA(uint64_t icode, PipeRegField * rA)
 {
     if (icode == IRRMOVQ || icode == IRMMOVQ || icode == IOPQ || icode == IPUSHQ) return rA->getOutput();
     if (icode == IPOPQ || icode == IRET) return RSP;
     return RNONE;
 }
-
+/*
+ * @param icode to be compared to values of actual icodes
+ * @param rB to obtain the value of what is in rB
+ */
 uint64_t DecodeStage::d_srcB(uint64_t icode, PipeRegField * rB)
 {
     if (icode == IOPQ || icode == IRMMOVQ || icode == IMRMOVQ) return rB->getOutput();
     if (icode == IPUSHQ || icode == IPOPQ || icode == ICALL || icode == IRET) return RSP;
     return RNONE;
 }
-
+/*
+ * @param icode to be compared to actual icode values
+ * @param rB to obtain what is in rB
+ */
 uint64_t DecodeStage::d_dstE(uint64_t icode, PipeRegField * rB)
 {
     if (icode == IRRMOVQ || icode == IIRMOVQ || icode == IOPQ) return rB->getOutput();
     if (icode == IPUSHQ || icode == IPOPQ || icode == ICALL || icode == IRET) return RSP;
     return RNONE;
 }
-
+/*
+ * @param icode to be compared to values of actual icodes
+ * @param rA to obtain the value of what is in rA
+ */
 uint64_t DecodeStage::d_dstM(uint64_t icode, PipeRegField * rA)
 {
     if (icode == IMRMOVQ || icode == IPOPQ) return rA->getOutput();
     return RNONE;
 }
-
+/*
+ * @param d_srcA value to be compared to opcodes
+ * @param eStage pointer to eStage to obtain its values
+ * @param mStage pointer to mStage to obtain its values
+ * @param mreg pointer to the memory register
+ * @param wreg pointer to the writeback register
+ * @param icode ot check to see if a jump should be taken
+ * @param valP will return the next sequential instruction
+ */
 uint64_t DecodeStage::d_valA(uint64_t d_srcA, ExecuteStage* eStage, MemoryStage* mStage, M * mreg, W * wreg, uint64_t icode, uint64_t valP)
 {  
     bool error = false;
@@ -145,6 +165,12 @@ uint64_t DecodeStage::d_valA(uint64_t d_srcA, ExecuteStage* eStage, MemoryStage*
     return reg->readRegister(d_srcA, error);
 }
 
+/*
+ * @param d_srcB value to checked against other values of next stage to set valE
+ * @param eStage to be used to grab values of other stage to compare to d_srcB
+ * @param mreg to be used to grab values of other stage to compare to d_srcB
+ * @param wreg to be used to grab values of other stage to compare to d_srcB
+ */
 uint64_t DecodeStage::d_valB(uint64_t d_srcB, ExecuteStage* eStage, MemoryStage* mStage, M * mreg, W * wreg)
 {
     bool error = false;
@@ -159,11 +185,16 @@ uint64_t DecodeStage::d_valB(uint64_t d_srcB, ExecuteStage* eStage, MemoryStage*
     RegisterFile * reg = RegisterFile::getInstance();
     return reg->readRegister(d_srcB, error);
 }
-
+/*
+ * @return srcA
+ */
 uint64_t DecodeStage::getd_srcA()
 {
     return srcA;
 }
+/*
+ * @return srcB
+ */
 uint64_t DecodeStage::getd_srcB()
 {
     return srcB;
